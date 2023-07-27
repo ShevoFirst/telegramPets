@@ -1,6 +1,5 @@
 package pro.sky.telegrampets.counter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,7 +15,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final Buttons buttons;
 
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, @Autowired Buttons buttons) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
     }
@@ -34,7 +33,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
+        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
             long chatId = update.getMessage().getChatId();
             SendMessage sendMessage = buttons.selectionAnimalButtons(chatId, update);
             try {
@@ -49,16 +48,36 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
             if (callbackData.equals("Кошка")) {
                 String textCat = "Вы выбрали приют для кошек";
-                SendMessage((int) messageId, chatId, textCat);
-
+                changeMessage((int) messageId, chatId, textCat);
+                SendMessage catsButtons = buttons.secondLayerButtons(chatId);
+                try {
+                    execute(catsButtons);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
             } else if (callbackData.equals("Собака")) {
                 String textCat = "Вы выбрали приют для собак";
-                SendMessage((int) messageId, chatId, textCat);
+                changeMessage((int) messageId, chatId, textCat);
+                SendMessage dogButtons = buttons.secondLayerButtons(chatId);
+                try {
+                    execute(dogButtons);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else {
+            SendMessage messageText = new SendMessage();
+            messageText.setChatId(update.getMessage().getChatId());
+            messageText.setText("не правильная команда");
+            try {
+                execute(messageText);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    private void SendMessage(int messageId, long chatIdInButton, String textCat) {
+    private void changeMessage(int messageId, long chatIdInButton, String textCat) {
         EditMessageText messageText = new EditMessageText();
         messageText.setChatId(String.valueOf(chatIdInButton));
         messageText.setText(textCat);
