@@ -55,7 +55,7 @@ public class Buttons {
      * @return returns dog button and cat button
      */
 
-    //аналогичный методу первого уровня за исключением того что кнопки находятся друг под другом
+    //аналогичный методу первого уровня за исключением того что кнопок 4 и находятся они друг под другом
     public SendMessage secondLayerButtons(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));

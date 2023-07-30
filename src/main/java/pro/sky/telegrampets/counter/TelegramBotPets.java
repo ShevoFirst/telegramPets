@@ -9,8 +9,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 
+/**
+ * класс реагирущий на реакции бота через telegramm api
+ */
 @Component
 public class TelegramBotPets extends TelegramLongPollingBot {
+    //подключение конфигуратора к нашему боту
     private final TelegramBotConfiguration telegramBotConfiguration;
     private final Buttons buttons;
 
@@ -20,19 +24,29 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         this.buttons = buttons;
     }
 
+    /**
+     * получение имени бота
+     */
     @Override
     public String getBotUsername() {
         return telegramBotConfiguration.getBotName();
     }
 
+    /**
+     * получение токена бота
+     */
     @Override
     public String getBotToken() {
         return telegramBotConfiguration.getToken();
     }
 
-
+    /**
+     * Метод получащий все события внутри бота
+     * @param update Update received
+     */
     @Override
     public void onUpdateReceived(Update update) {
+        //в случае если пользователь введет команду "/start" выведутся кнопки первого уровня
         if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
             long chatId = update.getMessage().getChatId();
             SendMessage sendMessage = buttons.selectionAnimalButtons(chatId, update);
@@ -41,6 +55,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
+        //в случае если пользователь нажал на одну из кнопок то они заменятся на текст и выведутся кнопки 2 уровня
         } else if (update.hasCallbackQuery()) { //проверка на передачу нажатия кнопки
             String callbackData = update.getCallbackQuery().getData(); // название CallbackData кнопки
             long messageId = update.getCallbackQuery().getMessage().getMessageId();
@@ -65,6 +80,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                     throw new RuntimeException(e);
                 }
             }
+            //в случае если не одна из выше перечисленных команд не была отловлена при обновлении, выводится "не правильная команда"
         } else {
             SendMessage messageText = new SendMessage();
             messageText.setChatId(update.getMessage().getChatId());
@@ -77,6 +93,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
     }
 
+    //метод для изменения сообщения
     private void changeMessage(int messageId, long chatIdInButton, String textCat) {
         EditMessageText messageText = new EditMessageText();
         messageText.setChatId(String.valueOf(chatIdInButton));
