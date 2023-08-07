@@ -10,7 +10,7 @@ import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 
 /**
- * класс реагирущий на реакции бота через telegramm api
+ * класс реагирущий на реакции бота через telegram api
  */
 @Component
 public class TelegramBotPets extends TelegramLongPollingBot {

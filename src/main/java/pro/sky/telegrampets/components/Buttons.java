@@ -1,26 +1,30 @@
 package pro.sky.telegrampets.components;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
 import java.util.List;
 
 /**
  * class for creating first and second level buttons
  */
+
 @Component
 public class Buttons {
     // InlineKeyBoardButton поле text это то что будет написано на кнопке
-    private static final InlineKeyboardButton catButton = new InlineKeyboardButton("Приют Кошек \uD83D\uDC08");
-    private static final InlineKeyboardButton dogButton = new InlineKeyboardButton("Приют Собак \uD83E\uDDAE");
-    private static final InlineKeyboardButton checkInfoButton = new InlineKeyboardButton("Информация о приюте");
-    private static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
-    private static final InlineKeyboardButton getReportAboutPet = new InlineKeyboardButton("Прислать отчет о питомце");
-    private static final InlineKeyboardButton howGetPet = new InlineKeyboardButton("Как взять животное из приюта?");
+    protected static final InlineKeyboardButton catButton = new InlineKeyboardButton("Приют Кошек \uD83D\uDC08");
+    protected static final InlineKeyboardButton dogButton = new InlineKeyboardButton("Приют Собак \uD83E\uDDAE");
+    protected static final InlineKeyboardButton checkInfoButton = new InlineKeyboardButton("Информация о приюте");
+    protected static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
+    protected static final InlineKeyboardButton getReportAboutPet = new InlineKeyboardButton("Прислать отчет о питомце");
+    protected static final InlineKeyboardButton howGetPet = new InlineKeyboardButton("Как взять животное из приюта?");
 
     /**
-     *
      * @param update called when /start is received
      * @param chatId chat id
      * @return returns dog button and cat button
@@ -46,11 +50,10 @@ public class Buttons {
         //Добавление в разметку массив с кнопками
         keyboardMarkup.setKeyboard(rowsInLine);
         sendMessage.setReplyMarkup(keyboardMarkup);
-
         return sendMessage;
     }
+
     /**
-     *
      * @param chatId chat id
      * @return returns dog button and cat button
      */
@@ -65,9 +68,10 @@ public class Buttons {
         getReportAboutPet.setCallbackData("Прислать отчет о питомце");
         howGetPet.setCallbackData("Как взять животное из приюта?");
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = List.of(List.of(checkInfoButton),List.of(callVolunteerButton),List.of(getReportAboutPet),List.of(howGetPet));
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(List.of(checkInfoButton), List.of(callVolunteerButton), List.of(getReportAboutPet), List.of(howGetPet));
         keyboardMarkup.setKeyboard(rowsInLine);
         sendMessage.setReplyMarkup(keyboardMarkup);
         return sendMessage;
     }
+
 }
