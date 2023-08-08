@@ -16,7 +16,6 @@ public class GetPetReportButton {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText("Выберите одну из кнопок");
-
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsList = List.of(List.of(dailyReportFormButton), List.of(callVolunteerButton));
         keyboardMarkup.setKeyboard(rowsList);
