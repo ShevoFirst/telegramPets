@@ -16,6 +16,8 @@ import java.util.List;
 
 @Component
 public class Buttons {
+    GetPetReportButton getPetReportButton;
+
     // InlineKeyBoardButton поле text это то что будет написано на кнопке
     protected static final InlineKeyboardButton catButton = new InlineKeyboardButton("Приют Кошек \uD83D\uDC08");
     protected static final InlineKeyboardButton dogButton = new InlineKeyboardButton("Приют Собак \uD83E\uDDAE");
