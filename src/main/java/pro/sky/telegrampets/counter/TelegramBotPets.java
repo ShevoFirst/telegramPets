@@ -5,6 +5,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.GetPetReportButton;
@@ -56,8 +57,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             //в случае если пользователь нажал на одну из кнопок то они заменятся на текст и выведутся кнопки 2ого уровня
         } else if (update.hasCallbackQuery()) { //проверка на передачу нажатия кнопки
             String callbackData = update.getCallbackQuery().getData(); // название CallbackData кнопки
-            long messageId = update.getCallbackQuery().getMessage().getMessageId();
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            int messageId = update.getCallbackQuery().getMessage().getMessageId();
+            Long chatId = update.getCallbackQuery().getMessage().getChatId();
 
             switch (callbackData) {
                 case "Кошка" -> catSelection(messageId, chatId);
@@ -66,13 +67,14 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             //в случае если пользователь нажал на одну из кнопок то они заменятся на текст и выведутся кнопки 3ого уровня
             if (update.hasCallbackQuery()) {
                 String callbackData2 = update.getCallbackQuery().getData();
-                long messageId2 = update.getCallbackQuery().getMessage().getMessageId();
-                long chatId2 = update.getCallbackQuery().getMessage().getChatId();
+                int messageId2 = update.getCallbackQuery().getMessage().getMessageId();
+                Long chatId2 = update.getCallbackQuery().getMessage().getChatId();
                 switch (callbackData2) {
                     case "Как взять животное из приюта?" -> takeAnimalSelection(messageId2, chatId2);
                     case "Информация о приюте" -> shelterSelection(messageId2, chatId2);
                     case "Позвать волонтера" -> callaVolunteer(messageId2, chatId2);
                     case "Прислать отчет о питомце" -> petReportSelection(messageId2, chatId2);
+                    case "В начало" -> buttonToStart(messageId2, chatId2);
                 }
             } else {
                 handleInvalidCommand(chatId);
@@ -81,57 +83,48 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //метод кнопки "Как взять животное из приюта?"
-    private void takeAnimalSelection(long messageId2, long chatId2) {
+    private void takeAnimalSelection(int messageId, long chatId) {
     }
 
     //метод кнопки "Позвать волонтера"
-    private void callaVolunteer(long messageId2, long chatId2) {
+    private void callaVolunteer(int messageId, long chatId) {
     }
 
 
     //метод кнопки "Информация о приюте"
-    private void shelterSelection(long messageId2, long chatId2) {
+    private void shelterSelection(int messageId, long chatId) {
     }
 
     private void startSelection(long chatId, Update update) {
-        SendMessage sendMessage = buttons.selectionAnimalButtons(chatId, update);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyMarkup(new Buttons().selectionAnimalButtons());
+        sendMessage.setText("Привет! " + update.getMessage().getFrom().getFirstName() + " Выберите приют который Вас интересует:");
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
     }
+    private void buttonToStart(int messageId, long chatId) {
+        String messageText = " Выберите приют который Вас интересует:";
+        changeMessage(messageId, chatId,messageText , new Buttons().selectionAnimalButtons());
+    }
 
-    private void catSelection(long messageId, long chatId) {
+    private void catSelection(int messageId, long chatId) {
         String messageText = "Вы выбрали приют для кошек";
-        changeMessage((int) messageId, chatId, messageText);
-        SendMessage catsButtons = buttons.secondLayerButtons(chatId);
-        try {
-            execute(catsButtons);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+        InlineKeyboardMarkup catsButtons = buttons.secondLayerButtons();
+        changeMessage(messageId, chatId, messageText, catsButtons);
     }
 
-    private void dogSelection(long messageId, long chatId) {
-        String textCat = "Вы выбрали приют для собак";
-        changeMessage((int) messageId, chatId, textCat);
-        SendMessage dogButtons = buttons.secondLayerButtons(chatId);
-        try {
-            execute(dogButtons);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+    private void dogSelection(int messageId, long chatId) {
+        InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
+        changeMessage(messageId,chatId,"вы выбрали собачий приют",dogButtons);
     }
 
-    private void petReportSelection(long messageId, long chatId) {
-
-        SendMessage sendMessage = getPetReportButton.sendMessageReportFromPet(chatId);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+    private void petReportSelection(int messageId, long chatId) {
+        InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
+        changeMessage(messageId,chatId, "Выберите одну из кнопок", reportButtons);
     }
 
     private void handleInvalidCommand(long chatId) {
@@ -152,6 +145,18 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * @param chatIdInButton
      * @param messageText
      */
+    private void changeMessage(int messageId, long chatIdInButton, String messageText,InlineKeyboardMarkup keyboardMarkup) {
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(String.valueOf(chatIdInButton));
+        editMessageText.setText(messageText);
+        editMessageText.setMessageId(messageId);
+        editMessageText.setReplyMarkup(keyboardMarkup);
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private void changeMessage(int messageId, long chatIdInButton, String messageText) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(String.valueOf(chatIdInButton));
@@ -163,4 +168,5 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
+
 }
