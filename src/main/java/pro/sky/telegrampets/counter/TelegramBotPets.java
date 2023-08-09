@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
+import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 
 /**
@@ -17,11 +18,12 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     //подключение конфигуратора к нашему боту
     private final TelegramBotConfiguration telegramBotConfiguration;
     private final Buttons buttons;
+    private final GetPetReportButton getPetReportButton;
 
-
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
+        this.getPetReportButton = getPetReportButton;
     }
 
     /**
@@ -42,60 +44,113 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     /**
      * Метод получащий все события внутри бота
+     *
      * @param update Update received
      */
     @Override
+
     public void onUpdateReceived(Update update) {
-        //в случае если пользователь введет команду "/start" выведутся кнопки первого уровня
-        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
+        if (isStartCommand(update)) {
             long chatId = update.getMessage().getChatId();
-            SendMessage sendMessage = buttons.selectionAnimalButtons(chatId, update);
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-        //в случае если пользователь нажал на одну из кнопок то они заменятся на текст и выведутся кнопки 2 уровня
-        } else if (update.hasCallbackQuery()) { //проверка на передачу нажатия кнопки
-            String callbackData = update.getCallbackQuery().getData(); // название CallbackData кнопки
+            startSelection(chatId, update);
+        } else if (update.hasCallbackQuery()) {
+            String callbackData = update.getCallbackQuery().getData();
             long messageId = update.getCallbackQuery().getMessage().getMessageId();
             long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-            if (callbackData.equals("Кошка")) {
-                String messageText = "Вы выбрали приют для кошек";
-                changeMessage((int) messageId, chatId, messageText);
-                SendMessage catsButtons = buttons.secondLayerButtons(chatId);
-                try {
-                    execute(catsButtons);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-            } else if (callbackData.equals("Собака")) {
-                String textCat = "Вы выбрали приют для собак";
-                changeMessage((int) messageId, chatId, textCat);
-                SendMessage dogButtons = buttons.secondLayerButtons(chatId);
-                try {
-                    execute(dogButtons);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
+            switch (callbackData) {
+                case "Кошка" -> catSelection(messageId, chatId);
+                case "Собака" -> dogSelection(messageId, chatId);
+                case "Как взять животное из приюта?" -> takeAnimalSelection(messageId, chatId);
+                case "Информация о приюте" -> shelterSelection(messageId, chatId);
+                case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
+                case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId, update);
+                case "Форма ежедневного отчета" -> {
+                    takeDailyReportForm(messageId, chatId, update);
+                    while (true) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
                 }
             }
-            //в случае если не одна из выше перечисленных команд не была отловлена при обновлении, выводится "не правильная команда"
-        } else {
-            SendMessage messageText = new SendMessage();
-            messageText.setChatId(update.getMessage().getChatId());
-            messageText.setText("не правильная команда");
-            try {
-                execute(messageText);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+        }
+    }
+
+
+    //проверка на /start
+    private boolean isStartCommand(Update update) {
+        return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
+    }
+
+    //вызов Форма ежедневного отчета
+    private void takeDailyReportForm(long messageId, long chatId, Update update) {
+        SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
+        executeSendMessage(sendMessage);
+    }
+
+    //метод кнопки "Прислать отчет о питомце"
+    private void petReportSelection(long messageId, long chatId, Update update) {
+        SendMessage sendMessage = getPetReportButton.sendMessageReportFromPet(chatId);
+        executeSendMessage(sendMessage);
+    }
+
+    //метод кнопки "Как взять животное из приюта?"
+    private void takeAnimalSelection(long messageId2, long chatId2) {
+    }
+
+    //метод кнопки "Позвать волонтера"
+    private void callaVolunteer(long messageId2, long chatId2) {
+    }
+
+
+    //метод кнопки "Информация о приюте"
+    private void shelterSelection(long messageId2, long chatId2) {
+    }
+
+    private void startSelection(long chatId, Update update) {
+        SendMessage sendMessage = buttons.selectionAnimalButtons(chatId, update);
+        executeSendMessage(sendMessage);
+    }
+
+    private void catSelection(long messageId, long chatId) {
+        String messageText = "Вы выбрали приют для кошек";
+        changeMessage((int) messageId, chatId, messageText);
+        SendMessage catsButtons = buttons.secondLayerButtons(chatId);
+        executeSendMessage(catsButtons);
+    }
+
+    private void dogSelection(long messageId, long chatId) {
+        String textCat = "Вы выбрали приют для собак";
+        changeMessage((int) messageId, chatId, textCat);
+        SendMessage dogButtons = buttons.secondLayerButtons(chatId);
+        executeSendMessage(dogButtons);
+    }
+
+
+    private void handleInvalidCommand(long chatId) {
+        SendMessage messageText = new SendMessage();
+        messageText.setChatId(chatId);
+        messageText.setText("не правильная команда");
+        executeSendMessage(messageText);
+    }
+
+    private void executeSendMessage(SendMessage sendMessage) {
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * метод для создания/изменения сообщения
-     * @param messageId Id сообщения не может быть null
+     *
+     * @param messageId      Id сообщения не может быть null
      * @param chatIdInButton
      * @param messageText
      */
