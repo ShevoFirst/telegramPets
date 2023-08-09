@@ -1,6 +1,8 @@
 package pro.sky.telegrampets.components;
 
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -30,7 +32,11 @@ public class Buttons {
     InlineKeyboardButton линейные кнопки под прикрепленным сообщением
     ReplyKeyboardMarkup кнопки внутри интерфейса телеграмма при нажатии которых возвращается определенный текст
      */
-    public InlineKeyboardMarkup selectionAnimalButtons() {
+    public SendMessage selectionAnimalButtons(long chatId, Update update) {
+        String userFirstName = update.getMessage().getFrom().getFirstName();
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText("Привет! " + userFirstName + " Выберите приют который Вас интересует:");
         //присваивание "бирок" которые будут возвращатся при нажатии
         catButton.setCallbackData("Кошка");
         dogButton.setCallbackData("Собака");
@@ -41,24 +47,29 @@ public class Buttons {
         List<List<InlineKeyboardButton>> rowsInLine = List.of(keyboardButtons);
         //Добавление в разметку массив с кнопками
         keyboardMarkup.setKeyboard(rowsInLine);
-        return keyboardMarkup;
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        return sendMessage;
     }
 
     /**
+     * @param chatId chat id
      * @return returns dog button and cat button
      */
 
     //аналогичный методу первого уровня за исключением того что кнопок 4 и находятся они друг под другом
-    public InlineKeyboardMarkup secondLayerButtons() {
+    public SendMessage secondLayerButtons(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText("Выберите одну из кнопок");
         checkInfoButton.setCallbackData("Информация о приюте");
         callVolunteerButton.setCallbackData("Позвать волонтера");
         getReportAboutPet.setCallbackData("Прислать отчет о питомце");
         howGetPet.setCallbackData("Как взять животное из приюта?");
-        toStart.setCallbackData("В начало");
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = List.of(List.of(checkInfoButton), List.of(callVolunteerButton), List.of(getReportAboutPet), List.of(howGetPet),List.of(toStart));
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(List.of(checkInfoButton), List.of(callVolunteerButton), List.of(getReportAboutPet), List.of(howGetPet));
         keyboardMarkup.setKeyboard(rowsInLine);
-        return keyboardMarkup;
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        return sendMessage;
     }
 
 }
