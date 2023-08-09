@@ -22,7 +22,12 @@ public class GetPetReportButton {
         sendMessage.setReplyMarkup(keyboardMarkup);
         dailyReportFormButton.setCallbackData("Форма ежедневного отчета");
         callVolunteerButton.setCallbackData("Позвать волонтера");
-//
         return sendMessage;
+    }
+
+    public SendMessage dailyReportForm(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        return sendMessage;
+
     }
 }
