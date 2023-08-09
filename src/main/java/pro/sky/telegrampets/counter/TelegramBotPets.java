@@ -66,31 +66,28 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId, update);
                 case "Форма ежедневного отчета" -> takeDailyReportForm(messageId, chatId);
+
             }
         }
+
     }
 
+
+    //проверка на /start
     private boolean isStartCommand(Update update) {
         return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
-
+    //вызов ежедневного отчета
     private void takeDailyReportForm(long messageId, long chatId) {
         SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+        executeSendMessage(sendMessage);
     }
 
+    //метод кнопки "Прислать отчет о питомце"
     private void petReportSelection(long messageId, long chatId, Update update) {
         SendMessage sendMessage = getPetReportButton.sendMessageReportFromPet(chatId);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+        executeSendMessage(sendMessage);
     }
 
     //метод кнопки "Как взять животное из приюта?"
@@ -108,33 +105,21 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     private void startSelection(long chatId, Update update) {
         SendMessage sendMessage = buttons.selectionAnimalButtons(chatId, update);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+        executeSendMessage(sendMessage);
     }
 
     private void catSelection(long messageId, long chatId) {
         String messageText = "Вы выбрали приют для кошек";
         changeMessage((int) messageId, chatId, messageText);
         SendMessage catsButtons = buttons.secondLayerButtons(chatId);
-        try {
-            execute(catsButtons);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+        executeSendMessage(catsButtons);
     }
 
     private void dogSelection(long messageId, long chatId) {
         String textCat = "Вы выбрали приют для собак";
         changeMessage((int) messageId, chatId, textCat);
         SendMessage dogButtons = buttons.secondLayerButtons(chatId);
-        try {
-            execute(dogButtons);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+        executeSendMessage(dogButtons);
     }
 
 
@@ -142,8 +127,12 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         SendMessage messageText = new SendMessage();
         messageText.setChatId(chatId);
         messageText.setText("не правильная команда");
+        executeSendMessage(messageText);
+    }
+
+    private void executeSendMessage(SendMessage sendMessage) {
         try {
-            execute(messageText);
+            execute(sendMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
