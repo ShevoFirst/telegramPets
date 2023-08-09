@@ -20,6 +20,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final TelegramBotConfiguration telegramBotConfiguration;
     private final Buttons buttons;
     private final GetPetReportButton getPetReportButton;
+    protected boolean isACatShelter;
 
     public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton) {
         this.telegramBotConfiguration = telegramBotConfiguration;
@@ -51,39 +52,83 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         //в случае если пользователь введет команду "/start" выведутся кнопки 1ого уровня
-        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
+        if (isStartCommand(update)) {
             long chatId = update.getMessage().getChatId();
             startSelection(chatId, update);
-            //в случае если пользователь нажал на одну из кнопок то они заменятся на текст и выведутся кнопки 2ого уровня
-        } else if (update.hasCallbackQuery()) { //проверка на передачу нажатия кнопки
-            String callbackData = update.getCallbackQuery().getData(); // название CallbackData кнопки
+        } else if (update.hasCallbackQuery()) { //проверка на нажатие кнопки
+            String callbackData = update.getCallbackQuery().getData();
             int messageId = update.getCallbackQuery().getMessage().getMessageId();
-            Long chatId = update.getCallbackQuery().getMessage().getChatId();
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
 
             switch (callbackData) {
+                //Cтартовый блок
                 case "Кошка" -> catSelection(messageId, chatId);
                 case "Собака" -> dogSelection(messageId, chatId);
-            }
-            //в случае если пользователь нажал на одну из кнопок то они заменятся на текст и выведутся кнопки 3ого уровня
-            if (update.hasCallbackQuery()) {
-                String callbackData2 = update.getCallbackQuery().getData();
-                int messageId2 = update.getCallbackQuery().getMessage().getMessageId();
-                Long chatId2 = update.getCallbackQuery().getMessage().getChatId();
-                switch (callbackData2) {
-                    case "Как взять животное из приюта?" -> takeAnimalSelection(messageId2, chatId2);
-                    case "Информация о приюте" -> shelterSelection(messageId2, chatId2);
-                    case "Позвать волонтера" -> callaVolunteer(messageId2, chatId2);
-                    case "Прислать отчет о питомце" -> petReportSelection(messageId2, chatId2);
-                    case "В начало" -> buttonToStart(messageId2, chatId2);
+
+                //блок второго уровня
+                case "Как взять животное из приюта?" -> takeAnimalSelection(messageId, chatId);
+                case "Информация о приюте" -> shelterSelection(messageId, chatId);
+                case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
+                case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId);
+                case "В начало" -> buttonToStart(messageId, chatId);
+
+                //блок “Прислать отчет о питомце”
+                case "Форма ежедневного отчета" -> {
+
                 }
-            } else {
-                handleInvalidCommand(chatId);
+
+                //блок “Как взять животное из приюта”
+                case "Обустройство котенка" -> KittenArrangementSelection(messageId, chatId);
+                case "Обустройство щенка" -> puppyArrangementSelection(messageId, chatId);
+                case "Правила знакомства" -> datingRulesSelection(messageId, chatId);
+                case "Список документов" -> documentsSelection(messageId, chatId);
+                case "Рекомендации по транспортировке" -> transportationSelection(messageId, chatId);
+                case "Обустройство для взрослого" -> arrangementAdultSelection(messageId, chatId);
+                case "Обустройство для ограниченного" -> arrangementLimitedSelection(messageId, chatId);
+                case "Cписок причин" -> listReasonsSelection(messageId, chatId);
+                case "Запись контактов" -> recordingContactsSelection(messageId, chatId);
             }
+        }else{
+            handleInvalidCommand(update.getMessage().getChatId());
         }
+    }
+
+    private void recordingContactsSelection(int messageId, long chatId) {
+    }
+
+    private void listReasonsSelection(int messageId, long chatId) {
+    }
+
+    private void arrangementLimitedSelection(int messageId, long chatId) {
+    }
+
+    private void arrangementAdultSelection(int messageId, long chatId) {
+    }
+
+    private void transportationSelection(int messageId, long chatId) {
+    }
+
+    private void documentsSelection(int messageId, long chatId) {
+    }
+
+    private void datingRulesSelection(int messageId, long chatId) {
+    }
+
+    private void puppyArrangementSelection(int messageId, long chatId) {
+    }
+
+    private void KittenArrangementSelection(int messageId, long chatId) {
+    }
+
+    private boolean isStartCommand(Update update) {
+        return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
     //метод кнопки "Как взять животное из приюта?"
     private void takeAnimalSelection(int messageId, long chatId) {
+        String messageText = "Выберите что вас интересует";
+        InlineKeyboardMarkup catsButtons = buttons.takeAnimalButton(isACatShelter);
+        changeMessage(messageId, chatId, messageText, catsButtons);
     }
 
     //метод кнопки "Позвать волонтера"
@@ -112,19 +157,22 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     private void catSelection(int messageId, long chatId) {
+        isACatShelter = true;
         String messageText = "Вы выбрали приют для кошек";
         InlineKeyboardMarkup catsButtons = buttons.secondLayerButtons();
         changeMessage(messageId, chatId, messageText, catsButtons);
     }
 
     private void dogSelection(int messageId, long chatId) {
+        isACatShelter = false;
         InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
         changeMessage(messageId,chatId,"вы выбрали собачий приют",dogButtons);
     }
 
+    //метод кнопки "Прислать отчет о питомце"
     private void petReportSelection(int messageId, long chatId) {
         InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
-        changeMessage(messageId,chatId, "Выберите одну из кнопок", reportButtons);
+        changeMessage(messageId,chatId,"Выберите одну из кнопок",reportButtons);
     }
 
     private void handleInvalidCommand(long chatId) {
