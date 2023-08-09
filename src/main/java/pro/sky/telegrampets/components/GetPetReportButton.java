@@ -27,6 +27,8 @@ public class GetPetReportButton {
 
     public SendMessage dailyReportForm(long chatId) {
         SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText("TEST");
         return sendMessage;
 
     }
