@@ -80,6 +80,16 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
     }
 
+    private void petReportSelection(long messageId, long chatId) {
+
+        SendMessage sendMessage = getPetReportButton.sendMessageReportFromPet(chatId);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     //метод кнопки "Как взять животное из приюта?"
     private void takeAnimalSelection(long messageId2, long chatId2) {
     }
@@ -124,15 +134,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
     }
 
-    private void petReportSelection(long messageId, long chatId) {
-
-        SendMessage sendMessage = getPetReportButton.sendMessageReportFromPet(chatId);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void handleInvalidCommand(long chatId) {
         SendMessage messageText = new SendMessage();
