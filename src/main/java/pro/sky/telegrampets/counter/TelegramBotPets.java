@@ -65,11 +65,20 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Информация о приюте" -> shelterSelection(messageId, chatId);
                 case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId, update);
-                case "Форма ежедневного отчета" -> takeDailyReportForm(messageId, chatId);
+                case "Форма ежедневного отчета" -> {
+                    takeDailyReportForm(messageId, chatId, update);
+                    while (true) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
+
+                }
             }
         }
-
     }
 
 
@@ -78,8 +87,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
-    //вызов ежедневного отчета
-    private void takeDailyReportForm(long messageId, long chatId) {
+    //вызов Форма ежедневного отчета
+    private void takeDailyReportForm(long messageId, long chatId, Update update) {
         SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
         executeSendMessage(sendMessage);
     }

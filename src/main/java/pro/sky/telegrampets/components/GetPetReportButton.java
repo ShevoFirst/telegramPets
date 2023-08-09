@@ -26,6 +26,7 @@ public class GetPetReportButton {
         return sendMessage;
     }
 
+    // отправка формы отчета
     public SendMessage dailyReportForm(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
@@ -37,11 +38,12 @@ public class GetPetReportButton {
         return sendMessage;
     }
 
+    // проверка формы отчета
     public SendMessage dailyReportCheck(long chatId, Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setChatId(chatId);
-        if (update.getMessage().hasPhoto() && update.getMessage().hasText()) {
+        if (update.getMessage().hasPhoto() ) {
             sendMessage.setText("Отчет сохранен");
             //реализация сохранения отчета, если надо будет
         } else {
