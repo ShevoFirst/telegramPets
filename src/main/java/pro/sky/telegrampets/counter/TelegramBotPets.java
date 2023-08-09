@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
@@ -65,20 +66,16 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Информация о приюте" -> shelterSelection(messageId, chatId);
                 case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId, update);
-                case "Форма ежедневного отчета" -> {
-                    takeDailyReportForm(messageId, chatId, update);
-                    while (true) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                }
+                case "Форма ежедневного отчета" -> takeDailyReportForm(messageId, chatId, update);
             }
+        } else if (update.hasMessage()) {
+            checkDailyReport(update);
         }
+    }
+
+    private void checkDailyReport(Update update) {
+        long chatId = update.getMessage().getChatId();
+        executeSendMessage(getPetReportButton.dailyReportCheck(chatId, update));
     }
 
 
@@ -92,6 +89,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
         executeSendMessage(sendMessage);
     }
+
 
     //метод кнопки "Прислать отчет о питомце"
     private void petReportSelection(long messageId, long chatId, Update update) {
