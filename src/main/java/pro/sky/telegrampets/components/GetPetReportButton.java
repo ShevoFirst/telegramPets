@@ -23,7 +23,6 @@ public class GetPetReportButton {
         dailyReportFormButton.setCallbackData("Форма ежедневного отчета");
         callVolunteerButton.setCallbackData("Позвать волонтера");
         return keyboardMarkup;
-        return sendMessage;
     }
 
     // отправка формы отчета

@@ -82,11 +82,11 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 }
 
                 //блок “Как взять животное из приюта”
-                case "Обустройство котенка" -> KittenArrangementSelection(messageId, chatId);
-                case "Обустройство щенка" -> puppyArrangementSelection(messageId, chatId);
                 case "Правила знакомства" -> datingRulesSelection(messageId, chatId);
                 case "Список документов" -> documentsSelection(messageId, chatId);
                 case "Рекомендации по транспортировке" -> transportationSelection(messageId, chatId);
+                case "Обустройство котенка" -> KittenArrangementSelection(messageId, chatId);
+                case "Обустройство щенка" -> puppyArrangementSelection(messageId, chatId);
                 case "Обустройство для взрослого" -> arrangementAdultSelection(messageId, chatId);
                 case "Обустройство для ограниченного" -> arrangementLimitedSelection(messageId, chatId);
                 case "Cписок причин" -> listReasonsSelection(messageId, chatId);
