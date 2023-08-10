@@ -66,15 +66,21 @@ public class Buttons {
         InlineKeyboardButton datingRulesButton = new InlineKeyboardButton("Правила знакомства");
         InlineKeyboardButton listOfDocumentsButton = new InlineKeyboardButton("Список документов");
         InlineKeyboardButton TransportationButton = new InlineKeyboardButton("Рекомендации по транспортировке животных");
-        InlineKeyboardButton arrangementPuppyButton = new InlineKeyboardButton("Обустройство для котенка");
+        InlineKeyboardButton arrangementPuppyButton = new InlineKeyboardButton();
+        InlineKeyboardButton arrangementAdultButton = new InlineKeyboardButton();
         if (isACat) {
+            arrangementAdultButton.setText("Обустройство для взрослого кота");
+            arrangementAdultButton.setCallbackData("Обустройство для взрослого кота");
+
             arrangementPuppyButton.setText("Обустройство для котенка");
             arrangementPuppyButton.setCallbackData("Обустройство котенка");
         } else {
+            arrangementAdultButton.setText("Обустройство для взрослой собаки");
+            arrangementAdultButton.setCallbackData("Обустройство для взрослой собаки");
+
             arrangementPuppyButton.setText("Обустройство для щенка");
             arrangementPuppyButton.setCallbackData("Обустройство щенка");
         }
-        InlineKeyboardButton arrangementAdultButton = new InlineKeyboardButton("Обустройство для взрослого животного");
         InlineKeyboardButton arrangemenDisabledButton = new InlineKeyboardButton("Обустройство для животного\n с ограниченными возможностями");
         InlineKeyboardButton whyRefuseButton = new InlineKeyboardButton("Cписок причин, почему могут отказать");
         InlineKeyboardButton contactButton = new InlineKeyboardButton("Запись ваших контактов");
@@ -84,7 +90,6 @@ public class Buttons {
         datingRulesButton.setCallbackData("Правила знакомства");
         listOfDocumentsButton.setCallbackData("Список документов");
         TransportationButton.setCallbackData("Рекомендации по транспортировке");
-        arrangementAdultButton.setCallbackData("Обустройство для взрослого ");
         arrangemenDisabledButton.setCallbackData("Обустройство для ограниченного");
         whyRefuseButton.setCallbackData("Cписок причин");
         contactButton.setCallbackData("Запись контактов");
