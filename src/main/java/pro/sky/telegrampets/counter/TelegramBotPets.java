@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
@@ -19,6 +20,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final TelegramBotConfiguration telegramBotConfiguration;
     private final Buttons buttons;
     private final GetPetReportButton getPetReportButton;
+
+    private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
 
     public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton) {
         this.telegramBotConfiguration = telegramBotConfiguration;
@@ -50,6 +53,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     @Override
 
     public void onUpdateReceived(Update update) {
+
         if (isStartCommand(update)) {
             long chatId = update.getMessage().getChatId();
             startSelection(chatId, update);
@@ -67,18 +71,22 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId, update);
                 case "Форма ежедневного отчета" -> {
                     takeDailyReportForm(messageId, chatId, update);
-                    while (true) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
+                    dailyReportFormPressed = true; // Устанавливаем флаг в true после нажатия кнопки
                 }
             }
         }
+        if (dailyReportFormPressed) { // Проверяем флаг перед выполнением checkDailyReport(update)
+            if (update.hasMessage()) {
+                checkDailyReport(update);
+                dailyReportFormPressed = false;
+            }
+        }
+    }
+
+    //проверка формы ежедневного отчета
+    private void checkDailyReport(Update update) {
+        long chatId = update.getMessage().getChatId();
+        executeSendMessage(getPetReportButton.dailyReportCheck(chatId, update));
     }
 
 
@@ -92,6 +100,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
         executeSendMessage(sendMessage);
     }
+
 
     //метод кнопки "Прислать отчет о питомце"
     private void petReportSelection(long messageId, long chatId, Update update) {
