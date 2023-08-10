@@ -21,6 +21,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final Buttons buttons;
     private final GetPetReportButton getPetReportButton;
 
+    private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
+
     public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
@@ -51,6 +53,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     @Override
 
     public void onUpdateReceived(Update update) {
+
         if (isStartCommand(update)) {
             long chatId = update.getMessage().getChatId();
             startSelection(chatId, update);
@@ -66,13 +69,21 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Информация о приюте" -> shelterSelection(messageId, chatId);
                 case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId, update);
-                case "Форма ежедневного отчета" -> takeDailyReportForm(messageId, chatId, update);
+                case "Форма ежедневного отчета" -> {
+                    takeDailyReportForm(messageId, chatId, update);
+                    dailyReportFormPressed = true; // Устанавливаем флаг в true после нажатия кнопки
+                }
             }
-        } else if (update.hasMessage()) {
-            checkDailyReport(update);
+        }
+        if (dailyReportFormPressed) { // Проверяем флаг перед выполнением checkDailyReport(update)
+            if (update.hasMessage()) {
+                checkDailyReport(update);
+                dailyReportFormPressed = false;
+            }
         }
     }
 
+    //проверка формы ежедневного отчета
     private void checkDailyReport(Update update) {
         long chatId = update.getMessage().getChatId();
         executeSendMessage(getPetReportButton.dailyReportCheck(chatId, update));

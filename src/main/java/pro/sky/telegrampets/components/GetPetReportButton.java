@@ -43,13 +43,13 @@ public class GetPetReportButton {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setChatId(chatId);
-        sendMessage.setText("TEST");
-//        if (update.getMessage().hasPhoto() ) {
-//            sendMessage.setText("Отчет сохранен");
-//            //реализация сохранения отчета, если надо будет
-//        } else {
-//            sendMessage.setText("Отчет сохранения отправлен не верно");
-//        }
+
+        if (update.getMessage().hasPhoto()) {
+            sendMessage.setText("Отчет сохранен");
+            //реализация сохранения отчета, если надо будет
+        } else {
+            sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
+        }
         return sendMessage;
     }
 }
