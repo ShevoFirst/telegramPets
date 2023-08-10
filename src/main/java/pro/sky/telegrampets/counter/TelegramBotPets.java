@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.service.UserService;
+
 
 /**
  * класс реагирущий на реакции бота через telegram api
@@ -22,6 +24,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final Buttons buttons;
     private final GetPetReportButton getPetReportButton;
     protected boolean isACatShelter;
+    private UserService userService;
 
     private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
 
@@ -153,6 +156,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     //метод кнопки "Позвать волонтера"
     private void callaVolunteer(int messageId, long chatId) {
+        SendMessage sendMessage = userService.sendMessageToVolunteer(chatId);
+        executeSendMessage(sendMessage);
+
     }
 
 

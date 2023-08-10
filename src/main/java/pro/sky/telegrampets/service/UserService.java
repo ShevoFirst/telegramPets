@@ -1,6 +1,8 @@
 package pro.sky.telegrampets.service;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
 public interface UserService {
-    void sendMessageToVolunteer(Long chatId);
+    SendMessage sendMessageToVolunteer(Long chatId);
 
 }

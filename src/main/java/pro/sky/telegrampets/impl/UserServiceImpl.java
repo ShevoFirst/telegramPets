@@ -1,8 +1,8 @@
 package pro.sky.telegrampets.impl;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.SendMessage;
 import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.UserRepository;
@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void sendMessageToVolunteer(Long chatId) {
+    public SendMessage sendMessageToVolunteer(Long chatId) {
         String text = "пивет волонтер нужна твоя помощь";
         User user = userRepository.getUserByChatId(chatId).get();
         String volunteerMessage = String.format("""
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
                 text);
         String telegramP = String.valueOf(volunteer.getChatId());
         SendMessage sendMessageVolunteers = new SendMessage(telegramP, volunteerMessage);
-        sendMessageVolunteers.parseMode(ParseMode.HTML);
-        telegramBot.execute(sendMessageVolunteers);
+        sendMessageVolunteers.setParseMode(String.valueOf(ParseMode.HTML));
+        return sendMessageVolunteers;
     }
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,13 +15,20 @@ import javax.persistence.*;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user", nullable = false, unique = true)
     private long id;
     @Column(name = "first_name_user")
     private String firstName;
-    @Column(name = "last_name_user")
-    private String lastName;
+    @Column(name = "took_a_pet")
+    private Boolean tookAPet;
     @Column(name = "chat_id_user")
     private long chatId;
+    @Column(name = "number")
+    private int number;
+    @Column(name = "reports")
+    private Reports reports;
+    @Column(name = "date_time_to_took")
+    private int dateTimeToTook;
+
 }
