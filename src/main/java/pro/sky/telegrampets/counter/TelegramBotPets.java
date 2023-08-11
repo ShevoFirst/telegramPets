@@ -95,7 +95,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Контакты охраны приюта для собак" -> dogShelterSecurityContactSelection(messageId, chatId);
 
                 case "Общие правила поведения" -> safetyRecommendationsSelection(messageId, chatId);
-                case "Запись ваших контактов" -> recordingContactsSelection(messageId, chatId);
+                case "Запись ваших контактов", "Запись контактов" -> recordingContactsSelection(messageId, chatId);
 
 
 
@@ -109,7 +109,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Обустройство для взрослой собаки" -> arrangementAdultSelectionDog(messageId, chatId);
                 case "Обустройство для ограниченного" -> arrangementLimitedSelection(messageId, chatId);
                 case "Cписок причин" -> listReasonsSelection(messageId, chatId);
-                case "Запись контактов" -> recordingContactsSelection(messageId, chatId);
             }
 
         }
