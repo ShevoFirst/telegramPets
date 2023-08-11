@@ -74,7 +74,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
                 //блок второго уровня
                 case "Как взять животное из приюта?" -> takeAnimalSelection(messageId, chatId);
-                case "Информация о приюте" -> shelterSelection(messageId, chatId);
+                case "Информация о приюте" -> shelterInformationSelection(messageId, chatId);
                 case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId);
                 case "В начало" -> buttonToStart(messageId, chatId);
@@ -84,6 +84,20 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                     takeDailyReportForm(messageId, chatId, update);
                     dailyReportFormPressed = true; // Устанавливаем флаг в true после нажатия кнопки
                 }
+
+                //Блок "Информация о приюте"
+                case "Информация о приюте для кошек" -> aboutCatShelterSelection(messageId, chatId);
+                case "Расписание работы приюта для кошек" -> catShelterWorkingHoursSelection(messageId, chatId);
+                case "Контакты охраны приюта для кошек" -> catShelterSecurityContactSelection(messageId, chatId);
+
+                case "Информация о приюте для собак" -> aboutDogShelterSelection(messageId, chatId);
+                case "Расписание работы приюта для собак" -> dogShelterWorkingHoursSelection(messageId, chatId);
+                case "Контакты охраны приюта для собак" -> dogShelterSecurityContactSelection(messageId, chatId);
+
+                case "Общие правила поведения" -> safetyRecommendationsSelection(messageId, chatId);
+                case "Запись ваших контактов" -> recordingContactsSelection(messageId, chatId);
+
+
 
                 //блок “Как взять животное из приюта”
                 case "Правила знакомства" -> datingRulesSelection(messageId, chatId);
@@ -114,6 +128,86 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()){
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
         }
+    }
+
+    private void aboutCatShelterSelection(int messageId, long chatId) {
+        String messageText = """
+                Мы стремимся обеспечить каждую кошку в нашем приюте ласковым убежищем, где они могут чувствовать себя в безопасности и защищенности. 
+                Наши просторные помещения созданы таким образом, чтобы кошки могли свободно перемещаться, играть и исследовать окружающую среду.\s
+                Наша команда состоит из опытных сотрудников и добровольцев, которые уделяют каждой кошке индивидуальное внимание и заботу. Мы предлагаем регулярные медицинские осмотры, вакцинации и стерилизацию, чтобы убедиться, что все кошки живут в полном здоровье и благополучии.
+                Наш приют для кошек также является активным членом местного сообщества. Мы проводим информационные мероприятия, образовательные программы и совместные акции, чтобы привлекать внимание к проблеме бездомности кошек и найти решения.
+                Мы находимся по адресу: г.Москва, ул. Ленина, стр.17.
+
+                """;
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }    private void aboutDogShelterSelection(int messageId, long chatId) {
+        String messageText = """
+                Наш приют для собак - это удивительное место, где каждый пушистый друг может найти свой дом и получить заботу, любовь и безопасность, которые он заслуживает. 
+                Открыв свои двери в 2023 году, наш приют уже успел стать оазисом для бездомных собак и их временным приютом.
+                У нас работает дружелюбный и преданный персонал, состоящий из опытных ветеринаров, тренеров и волонтеров, которые уделяют особое внимание заботе о наших собаках. Мы предлагаем им полноценное питание, погружение в игры и развлечения, а также регулярные медицинские осмотры и ветеринарную помощь.
+                Мы находимся по адресу: г.Москва, ул. Пушкина, стр.10 (вход со стороны магазина "Атлантида").
+                """;
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }
+
+    private void catShelterWorkingHoursSelection(int messageId, long chatId) {
+        String messageText = """
+                Мы работаем с 7:00 и до 23:00 ежедневно.
+                В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта 
+                """;
+        System.out.println(77);
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }
+    private void dogShelterWorkingHoursSelection(int messageId, long chatId) {
+        String messageText = """
+                Мы работаем с 8:30 и до 22:00 ежедневно.
+                В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта 
+                """;
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }
+    private void catShelterSecurityContactSelection(int messageId, long chatId) {
+        String messageText = """
+                Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
+                Телефон для связи с постом охраны: 8-800-888-88-88.
+                Просьба звонить заранее, в часы работы приюта.
+                """;
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }
+    private void dogShelterSecurityContactSelection(int messageId, long chatId) {
+        String messageText = """
+                Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
+                Телефон для связи с постом охраны: 8-777-666-55-44.
+                Просьба звонить заранее, в часы работы приюта.
+                """;
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }
+
+    private void safetyRecommendationsSelection(int messageId, long chatId) {
+        String messageText = """
+                1. Уважайте животных: Обращайтесь с животными с добротой и состраданием. Используйте спокойный и мягкий тон голоса, чтобы не пугать их.
+                2. Следуйте инструкциям персонала: Следуйте указаниям персонала приюта. Они знают особенности каждого животного и могут дать советы о безопасности и правильном обращении с ними.
+                3. Не кормите животных без разрешения: Не предлагайте пищу животным без разрешения персонала. У них может быть специальная диета или определенные проблемы со здоровьем, и неправильная пища может причинить вред.
+                4. Будьте аккуратны и осторожны: Поведение в приюте должно быть аккуратным и осторожным, чтобы не причинить вред животным или себе. Не шумите, не пугайте их и не оставляйте предметы, которые могут быть опасными.
+                5. Не проникайте в запретные зоны приюта: Уважайте указанные запретные зоны, куда доступ запрещен. Некоторые животные могут быть в карантине или требовать специального ухода, поэтому важно соблюдать инструкции персонала.
+                6. Поддерживайте чистоту: Следите за чистотой и гигиеной в приюте. Выбрасывайте мусор в специальные контейнеры, после общения с животными вымывайте руки.
+                7. Предоставляйте информацию: Если замечаете какие-либо изменения в поведении или состоянии животных, сообщите об этом персоналу приюта. Ваши наблюдения могут быть важными для здоровья и ухода за животными.
+                """;
+        System.out.println(43);
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void arrangementAdultSelectionDog(int messageId, long chatId) {
@@ -293,7 +387,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     //метод кнопки "Как взять животное из приюта?"
     private void takeAnimalSelection(int messageId, long chatId) {
-        String messageText = "Выберите что вас интересует";
+        String messageText = "Выберите, что вас интересует";
         InlineKeyboardMarkup catsButtons = buttons.takeAnimalButton(isACatShelter);
         changeMessage(messageId, chatId, messageText, catsButtons);
     }
@@ -304,7 +398,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
 
     //метод кнопки "Информация о приюте"
-    private void shelterSelection(int messageId, long chatId) {
+    private void shelterInformationSelection(int messageId, long chatId) {
+        String messageText = "Здравствуйте, дорогой пользователь.";
+        InlineKeyboardMarkup shelterButtons = buttons.shelterInformationButton(isACatShelter);
+        changeMessage(messageId, chatId, messageText, shelterButtons);
     }
 
     private void startSelection(long chatId, Update update) {
@@ -334,7 +431,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private void dogSelection(int messageId, long chatId) {
         isACatShelter = false;
         InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
-        changeMessage(messageId,chatId,"вы выбрали собачий приют",dogButtons);
+        changeMessage(messageId,chatId,"Вы выбрали собачий приют",dogButtons);
     }
 
     //метод кнопки "Прислать отчет о питомце"

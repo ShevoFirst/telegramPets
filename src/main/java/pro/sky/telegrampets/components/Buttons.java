@@ -106,4 +106,47 @@ public class Buttons {
         keyboardMarkup.setKeyboard(rowsInLine);
         return keyboardMarkup;
     }
+
+    public InlineKeyboardMarkup shelterInformationButton(boolean isACat) {
+        InlineKeyboardButton safetyRecommendationsButton = new InlineKeyboardButton("Общие правила поведения");
+        InlineKeyboardButton recordingContactsSelection = new InlineKeyboardButton("Запись ваших контактов");
+        InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
+        InlineKeyboardButton aboutDogShelterButton = new InlineKeyboardButton();
+        InlineKeyboardButton aboutCatShelterButton = new InlineKeyboardButton();
+        InlineKeyboardButton dogShelterWorkingHoursButton = new InlineKeyboardButton();
+        InlineKeyboardButton catShelterWorkingHoursButton = new InlineKeyboardButton();
+        InlineKeyboardButton dogShelterSecurityContactButton = new InlineKeyboardButton();
+        InlineKeyboardButton catShelterSecurityContactButton = new InlineKeyboardButton();
+
+
+        if (isACat) {
+            aboutCatShelterButton.setText("Информация о приюте для кошек");
+            aboutCatShelterButton.setCallbackData("Информация о приюте для кошек");
+            catShelterWorkingHoursButton.setText("Расписание работы приюта для кошек");
+            catShelterWorkingHoursButton.setCallbackData("Расписание работы приюта для кошек");
+            catShelterSecurityContactButton.setText("Контакты охраны приюта для кошек");
+            catShelterSecurityContactButton.setCallbackData("Контакты охраны приюта для кошек");
+        } else {
+            aboutDogShelterButton.setText("Информация о приюте для собак");
+            aboutDogShelterButton.setCallbackData("Информация о приюте для собак");
+            dogShelterWorkingHoursButton.setText("Расписание приюта для собак");
+            dogShelterWorkingHoursButton.setCallbackData("Расписание приюта для собак");
+            dogShelterSecurityContactButton.setText("Контакты охраны приюта для собак");
+            dogShelterSecurityContactButton.setCallbackData("Контакты охраны приюта для собак");
+        }
+
+        safetyRecommendationsButton.setCallbackData("Общие правила поведения");
+        recordingContactsSelection.setCallbackData("Запись ваших контактов");
+        toStart.setCallbackData("В начало");
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(
+                List.of(aboutDogShelterButton), List.of(aboutCatShelterButton), List.of(dogShelterWorkingHoursButton),
+                List.of(catShelterWorkingHoursButton), List.of(dogShelterSecurityContactButton), List.of(catShelterSecurityContactButton),
+                List.of(safetyRecommendationsButton), List.of(recordingContactsSelection), List.of(toStart)
+        );
+        keyboardMarkup.setKeyboard(rowsInLine);
+        return keyboardMarkup;
+    }
+
 }

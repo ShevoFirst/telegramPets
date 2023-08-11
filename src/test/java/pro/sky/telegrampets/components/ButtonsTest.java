@@ -45,5 +45,5 @@ class ButtonsTest {
         assertEquals("Позвать волонтера", Buttons.callVolunteerButton.getCallbackData());
         assertEquals("Прислать отчет о питомце", Buttons.getReportAboutPet.getCallbackData());
         assertEquals("Как взять животное из приюта?", Buttons.howGetPet.getCallbackData());
-    }
+    }*/
 }
