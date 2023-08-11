@@ -106,4 +106,43 @@ public class Buttons {
         keyboardMarkup.setKeyboard(rowsInLine);
         return keyboardMarkup;
     }
+
+    public InlineKeyboardMarkup shelterInformationButton(boolean isACat) {
+        InlineKeyboardButton safetyRecommendationsButton = new InlineKeyboardButton("Общие правила поведения");
+        InlineKeyboardButton recordingContactsSelection = new InlineKeyboardButton("Запись ваших контактов");
+        InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
+        InlineKeyboardButton aboutShelterButton = new InlineKeyboardButton();
+        InlineKeyboardButton shelterWorkingHoursButton = new InlineKeyboardButton();
+        InlineKeyboardButton shelterSecurityContactButton = new InlineKeyboardButton();
+
+        if (isACat) {
+            aboutShelterButton.setText("Информация о приюте для кошек");
+            aboutShelterButton.setCallbackData("Информация о приюте для кошек");
+            shelterWorkingHoursButton.setText("Расписание работы приюта для кошек");
+            shelterWorkingHoursButton.setCallbackData("Расписание работы приюта для кошек");
+            shelterSecurityContactButton.setText("Контакты охраны приюта для кошек");
+            shelterSecurityContactButton.setCallbackData("Контакты охраны приюта для кошек");
+        } else {
+            aboutShelterButton.setText("Информация о приюте для собак");
+            aboutShelterButton.setCallbackData("Информация о приюте для собак");
+            shelterWorkingHoursButton.setText("Расписание приюта для собак");
+            shelterWorkingHoursButton.setCallbackData("Расписание приюта для собак");
+            shelterSecurityContactButton.setText("Контакты охраны приюта для собак");
+            shelterSecurityContactButton.setCallbackData("Контакты охраны приюта для собак");
+        }
+
+        safetyRecommendationsButton.setCallbackData("Общие правила поведения");
+        recordingContactsSelection.setCallbackData("Запись ваших контактов");
+        toStart.setCallbackData("В начало");
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(
+                List.of(aboutShelterButton), List.of(shelterWorkingHoursButton),
+                List.of(shelterSecurityContactButton),
+                List.of(safetyRecommendationsButton), List.of(recordingContactsSelection), List.of(toStart)
+        );
+        keyboardMarkup.setKeyboard(rowsInLine);
+        return keyboardMarkup;
+    }
+
 }

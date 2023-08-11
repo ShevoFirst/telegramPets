@@ -26,8 +26,8 @@ public class User {
     private long chatId;
     @Column(name = "number")
     private int number;
-    @Column(name = "reports")
-    private Reports reports;
+    /*@Column(name = "reports")
+    private Reports reports;*/
     @Column(name = "date_time_to_took")
     private int dateTimeToTook;
 
