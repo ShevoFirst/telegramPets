@@ -21,14 +21,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SendMessage sendMessageToVolunteer(Long chatId) {
-        String text = "пивет волонтер нужна твоя помощь";
+        String text = "привет волонтер нужна твоя помощь";
         User user = userRepository.getUserByChatId(chatId).get();
         String volunteerMessage = String.format("""
                         <b>%s</b> позвать волонтера
-                        номер id пользователя: %s 
+                        номер телефона: %s.
                         имя пользователя: %s
                          Прекрепленое сообщение: %s""",
-                user.getId(),
+                user.getNumber(),
                 user.getFirstName(),
                 text);
         String telegramP = String.valueOf(volunteer.getChatId());
