@@ -1,15 +1,22 @@
 package pro.sky.telegrampets.components;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import pro.sky.telegrampets.impl.UserServiceImpl;
+import pro.sky.telegrampets.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Component
+@Service
 public class GetPetReportButton {
+    @Autowired
+    UserServiceImpl userService;
     protected static final InlineKeyboardButton dailyReportFormButton = new InlineKeyboardButton("Форма ежедневного отчета");
     protected static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
     protected static final InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
@@ -17,7 +24,7 @@ public class GetPetReportButton {
 
     public InlineKeyboardMarkup sendMessageReportFromPet() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsList = List.of(List.of(dailyReportFormButton), List.of(callVolunteerButton),List.of(toStart));
+        List<List<InlineKeyboardButton>> rowsList = List.of(List.of(dailyReportFormButton), List.of(callVolunteerButton), List.of(toStart));
         keyboardMarkup.setKeyboard(rowsList);
         toStart.setCallbackData("В начало");
         dailyReportFormButton.setCallbackData("Форма ежедневного отчета");
@@ -45,10 +52,20 @@ public class GetPetReportButton {
 
         if (update.getMessage().hasPhoto()) {
             sendMessage.setText("Отчет сохранен");
-            //реализация сохранения отчета, если надо будет
+            saveUser(update);
         } else {
             sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
         }
         return sendMessage;
+    }
+
+    private void saveUser(Update update) {
+        User user = new User();
+        user.setFirstName(update.getMessage().getFrom().getFirstName());
+        user.setDateTimeToTook(LocalDateTime.now());
+        user.setChatId(update.getMessage().getChatId().intValue());
+        user.setTookAPet(true);
+        user.setNumber(0);
+        userService.userAdd(user);
     }
 }
