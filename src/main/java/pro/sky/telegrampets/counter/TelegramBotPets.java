@@ -1,5 +1,7 @@
 package pro.sky.telegrampets.counter;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,15 +13,20 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.repository.UserRepository;
 import pro.sky.telegrampets.timer.NotificationTaskTimer;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
  * класс реагирущий на реакции бота через telegram api
  */
 @Component
+@EnableScheduling
 public class TelegramBotPets extends TelegramLongPollingBot {
     //подключение конфигуратора к нашему боту
     private final TelegramBotConfiguration telegramBotConfiguration;
@@ -27,18 +34,17 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final GetPetReportButton getPetReportButton;
     protected boolean isACatShelter;
     private boolean isWaitNumber = false;
-    private final NotificationTaskTimer notificationTaskTimer;
+    private final UserRepository userRepository;
 
     private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, NotificationTaskTimer notificationTaskTimer) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
         this.getPetReportButton = getPetReportButton;
-        this.notificationTaskTimer = notificationTaskTimer;
+        this.userRepository = userRepository;
+
     }
-
-
 
     /**
      * получение имени бота
@@ -88,7 +94,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Форма ежедневного отчета" -> {
                     takeDailyReportForm(messageId, chatId, update);
                     dailyReportFormPressed = true; // Устанавливаем флаг в true после нажатия кнопки
-                    notificationTaskTimer.TEST_ONE();
                 }
 
                 //Блок "Информация о приюте"
@@ -133,7 +138,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
         }
     }
-
 
 
     private void aboutCatShelterSelection(int messageId, long chatId) {
@@ -488,11 +492,11 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     public void changeMessage(long chatIdInButton, String messageText) {
-        EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setChatId(String.valueOf(chatIdInButton));
-        editMessageText.setText(messageText);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatIdInButton));
+        sendMessage.setText(messageText);
         try {
-            execute(editMessageText);
+            execute(sendMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }

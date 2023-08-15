@@ -18,6 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByChatId(int chatId);
 
-    List<User> findAllByDateTimeToTook(LocalDateTime localDateTime);
+    Optional<User> findByDateTimeToTookBefore(LocalDateTime dateTimeToTook);
 
 }
