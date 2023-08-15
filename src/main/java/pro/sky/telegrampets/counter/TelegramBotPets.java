@@ -1,5 +1,7 @@
 package pro.sky.telegrampets.counter;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,14 +13,20 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.repository.UserRepository;
+import pro.sky.telegrampets.timer.NotificationTaskTimer;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
  * класс реагирущий на реакции бота через telegram api
  */
 @Component
+@EnableScheduling
 public class TelegramBotPets extends TelegramLongPollingBot {
     //подключение конфигуратора к нашему боту
     private final TelegramBotConfiguration telegramBotConfiguration;
@@ -26,13 +34,16 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final GetPetReportButton getPetReportButton;
     protected boolean isACatShelter;
     private boolean isWaitNumber = false;
+    private final UserRepository userRepository;
 
     private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
         this.getPetReportButton = getPetReportButton;
+        this.userRepository = userRepository;
+
     }
 
     /**
@@ -98,7 +109,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Запись ваших контактов", "Запись контактов" -> recordingContactsSelection(messageId, chatId);
 
 
-
                 //блок “Как взять животное из приюта”
                 case "Правила знакомства" -> datingRulesSelection(messageId, chatId);
                 case "Список документов" -> documentsSelection(messageId, chatId);
@@ -123,11 +133,12 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         if (update.hasMessage() && isWaitNumber && pattern.matcher(update.getMessage().getText()).matches()) {
             System.out.println(update.getMessage().getText()); //тут должна быть реализация записи номера в БД
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "номер записан вам обязательно позвонят"));
-            isWaitNumber=false;
-        }else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()){
+            isWaitNumber = false;
+        } else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()) {
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
         }
     }
+
 
     private void aboutCatShelterSelection(int messageId, long chatId) {
         String messageText = """
@@ -140,8 +151,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
-    }    private void aboutDogShelterSelection(int messageId, long chatId) {
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+    }
+
+    private void aboutDogShelterSelection(int messageId, long chatId) {
         String messageText = """
                 Наш приют для собак - это удивительное место, где каждый пушистый друг может найти свой дом и получить заботу, любовь и безопасность, которые он заслуживает.
                 Открыв свои двери в 2023 году, наш приют уже успел стать оазисом для бездомных собак и их временным приютом.
@@ -150,7 +163,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void catShelterWorkingHoursSelection(int messageId, long chatId) {
@@ -161,8 +174,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         System.out.println(77);
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
+
     private void dogShelterWorkingHoursSelection(int messageId, long chatId) {
         String messageText = """
                 Мы работаем с 8:30 и до 22:00 ежедневно.
@@ -170,8 +184,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
+
     private void catShelterSecurityContactSelection(int messageId, long chatId) {
         String messageText = """
                 Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
@@ -180,8 +195,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
+
     private void dogShelterSecurityContactSelection(int messageId, long chatId) {
         String messageText = """
                 Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
@@ -190,7 +206,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void safetyRecommendationsSelection(int messageId, long chatId) {
@@ -206,7 +222,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         System.out.println(43);
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void arrangementAdultSelectionDog(int messageId, long chatId) {
@@ -224,7 +240,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         System.out.println(43);
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void recordingContactsSelection(int messageId, long chatId) {
@@ -233,7 +249,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         isWaitNumber = true;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void listReasonsSelection(int messageId, long chatId) {
@@ -251,7 +267,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void arrangementLimitedSelection(int messageId, long chatId) {
@@ -267,7 +283,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void arrangementAdultSelectionCat(int messageId, long chatId) {
@@ -283,7 +299,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void transportationSelection(int messageId, long chatId) {
@@ -294,7 +310,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 4. Игрушки или другие предметы, которые помогут животному чувствовать себя комфортно во время перевозки.""";
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void documentsSelection(int messageId, long chatId) {
@@ -309,7 +325,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void datingRulesSelection(int messageId, long chatId) {
@@ -331,7 +347,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 8. Относитесь к животному с любовью и заботой, чтобы он чувствовал себя дома и был счастлив.""";
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void puppyArrangementSelection(int messageId, long chatId) {
@@ -348,7 +364,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости.""";
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private void KittenArrangementSelection(int messageId, long chatId) {
@@ -365,7 +381,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости.""";
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
-        changeMessage(messageId,chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
+        changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
     private boolean isStartCommand(Update update) {
@@ -414,10 +430,11 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
+
     private void buttonToStart(int messageId, long chatId) {
         String messageText = " Выберите приют который Вас интересует:";
-        changeMessage(messageId, chatId,messageText , new Buttons().selectionAnimalButtons());
-        isWaitNumber=false;
+        changeMessage(messageId, chatId, messageText, new Buttons().selectionAnimalButtons());
+        isWaitNumber = false;
     }
 
     private void catSelection(int messageId, long chatId) {
@@ -430,13 +447,13 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private void dogSelection(int messageId, long chatId) {
         isACatShelter = false;
         InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
-        changeMessage(messageId,chatId,"Вы выбрали собачий приют",dogButtons);
+        changeMessage(messageId, chatId, "Вы выбрали собачий приют", dogButtons);
     }
 
     //метод кнопки "Прислать отчет о питомце"
     private void petReportSelection(int messageId, long chatId) {
         InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
-        changeMessage(messageId,chatId,"Выберите одну из кнопок",reportButtons);
+        changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
     }
 
     private void handleInvalidCommand(long chatId) {
@@ -461,7 +478,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * @param chatIdInButton
      * @param messageText
      */
-    private void changeMessage(int messageId, long chatIdInButton, String messageText,InlineKeyboardMarkup keyboardMarkup) {
+    private void changeMessage(int messageId, long chatIdInButton, String messageText, InlineKeyboardMarkup keyboardMarkup) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(String.valueOf(chatIdInButton));
         editMessageText.setText(messageText);
@@ -473,13 +490,13 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
-    private void changeMessage(int messageId, long chatIdInButton, String messageText) {
-        EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setChatId(String.valueOf(chatIdInButton));
-        editMessageText.setText(messageText);
-        editMessageText.setMessageId(messageId);
+
+    public void changeMessage(long chatIdInButton, String messageText) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatIdInButton));
+        sendMessage.setText(messageText);
         try {
-            execute(editMessageText);
+            execute(sendMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }

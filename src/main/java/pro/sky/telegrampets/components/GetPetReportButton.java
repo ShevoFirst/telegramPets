@@ -1,15 +1,23 @@
 package pro.sky.telegrampets.components;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import pro.sky.telegrampets.impl.UserServiceImpl;
+import pro.sky.telegrampets.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-@Component
+@Service
 public class GetPetReportButton {
+    @Autowired
+    UserServiceImpl userService;
     protected static final InlineKeyboardButton dailyReportFormButton = new InlineKeyboardButton("Форма ежедневного отчета");
     protected static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
     protected static final InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
@@ -17,7 +25,7 @@ public class GetPetReportButton {
 
     public InlineKeyboardMarkup sendMessageReportFromPet() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsList = List.of(List.of(dailyReportFormButton), List.of(callVolunteerButton),List.of(toStart));
+        List<List<InlineKeyboardButton>> rowsList = List.of(List.of(dailyReportFormButton), List.of(callVolunteerButton), List.of(toStart));
         keyboardMarkup.setKeyboard(rowsList);
         toStart.setCallbackData("В начало");
         dailyReportFormButton.setCallbackData("Форма ежедневного отчета");
@@ -37,7 +45,9 @@ public class GetPetReportButton {
         return sendMessage;
     }
 
-    // проверка формы отчета
+    /**
+     * Проверяем отчет и сохроняем пользователя который его отправил
+     */
     public SendMessage dailyReportCheck(long chatId, Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
@@ -45,10 +55,32 @@ public class GetPetReportButton {
 
         if (update.getMessage().hasPhoto()) {
             sendMessage.setText("Отчет сохранен");
-            //реализация сохранения отчета, если надо будет
+            saveUser(update);
         } else {
             sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
         }
         return sendMessage;
+    }
+
+    /**
+     * Поиск пользователя по chatId, если он есть то обновляем dateTimeToTook, если нет, создается новый пользователь
+     */
+    private void saveUser(Update update) {
+        int chatId = update.getMessage().getChatId().intValue();
+        Optional<User> userOptional = userService.getUserByChatId(chatId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setDateTimeToTook(LocalDateTime.now());
+            userService.updateUser(user);
+        } else {
+            User newUser = new User();
+            newUser.setFirstName(update.getMessage().getFrom().getFirstName());
+            newUser.setChatId(chatId);
+            newUser.setTookAPet(true);
+            newUser.setNumber(0);
+            newUser.setDateTimeToTook(LocalDateTime.now());
+            userService.userAdd(newUser);
+        }
     }
 }
