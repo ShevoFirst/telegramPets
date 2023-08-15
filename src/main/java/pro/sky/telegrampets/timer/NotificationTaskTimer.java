@@ -7,33 +7,32 @@ import pro.sky.telegrampets.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
 public class NotificationTaskTimer {
     private final UserRepository userRepository;
-    private final TelegramBotPets telegramBotPets;
+
 
     public NotificationTaskTimer(UserRepository userRepository, TelegramBotPets telegramBotPets) {
         this.userRepository = userRepository;
-        this.telegramBotPets = telegramBotPets;
+
     }
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
-    public int task() {
-
+    public List<Integer> task() {
         LocalDateTime twoDaysAgo = LocalDateTime.now().minusSeconds(10);
-        String message = "НЕТ СООБЩЕНИЙ 10 секунд!!!";
         System.out.println("TEST");
+        List<Integer> chatIds = new ArrayList<>(); //
         userRepository.findAllByDateTimeToTook(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .forEach(user -> {
-                    int chatId = 0;
                     if (user.getDateTimeToTook().isBefore(twoDaysAgo)) {
-                        telegramBotPets.changeMessage(user.getChatId(), message);
-                        return user.getChatId();
+                        chatIds.add(user.getChatId()); // Добавляем chatId в список
                     }
                 });
-        return 0;
+        return chatIds;
     }
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
