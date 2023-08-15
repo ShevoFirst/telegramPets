@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    //Получить
+    //Получить юзера из бд
     @Override
     public Optional<User> getUserByChatId(int chatId) {
         return userRepository.findByChatId(chatId);
