@@ -1,14 +1,16 @@
 package pro.sky.telegrampets.components;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import pro.sky.telegrampets.impl.UserServiceImpl;
+import pro.sky.telegrampets.model.Report;
 import pro.sky.telegrampets.model.User;
+import pro.sky.telegrampets.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,9 +20,14 @@ import java.util.Optional;
 public class GetPetReportButton {
     @Autowired
     UserServiceImpl userService;
+    private final UserRepository userRepository;
     protected static final InlineKeyboardButton dailyReportFormButton = new InlineKeyboardButton("Форма ежедневного отчета");
     protected static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
     protected static final InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
+
+    public GetPetReportButton(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
 
     public InlineKeyboardMarkup sendMessageReportFromPet() {
@@ -82,5 +89,19 @@ public class GetPetReportButton {
             newUser.setDateTimeToTook(LocalDateTime.now());
             userService.userAdd(newUser);
         }
+    }
+
+    private void saveReport(Update update, String healthPet) {
+        int chatId = update.getMessage().getChatId().intValue();
+        Report report = new Report();
+        report.setDateAdded(LocalDateTime.now());
+        report.setGeneralWellBeing(healthPet);
+        report.setUser(userRepository.findUserByChatId(update.getMessage().getChatId().intValue()));
+        report.
+    }
+
+    private void handlePhotoMessage(Update update){
+        PhotoSize photoSize = update.getMessage().getPhoto().get(update.getMessage().getPhoto().size() - 1);
+        GetFileRe
     }
 }
