@@ -67,7 +67,7 @@ public class GetPetReportButton {
 
         if (update.getMessage().hasPhoto()) {
             sendMessage.setText("Отчет сохранен");
-            saveUser(update);
+            saveUser(update,true);
             saveReport(update);
         } else {
             sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
@@ -78,7 +78,7 @@ public class GetPetReportButton {
     /**
      * Поиск пользователя по chatId, если он есть то обновляем dateTimeToTook, если нет, создается новый пользователь
      */
-    private void saveUser(Update update) {
+    public void saveUser(Update update, boolean tookAPET) {
         int chatId = update.getMessage().getChatId().intValue();
         Optional<User> userOptional = userService.getUserByChatId(chatId);
 
@@ -90,8 +90,7 @@ public class GetPetReportButton {
             User newUser = new User();
             newUser.setFirstName(update.getMessage().getFrom().getFirstName());
             newUser.setChatId(chatId);
-            newUser.setTookAPet(true);
-            newUser.setNumber(0);
+            newUser.setTookAPet(tookAPET);
             newUser.setDateTimeToTook(LocalDateTime.now());
             userService.userAdd(newUser);
         }

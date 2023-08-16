@@ -32,7 +32,7 @@ public class User {
     private int chatId;
 
     @Column(name = "telephone_number")
-    private int number;
+    private String number;
 
     @Column(name = "date_time_to_took")
     private LocalDateTime dateTimeToTook;

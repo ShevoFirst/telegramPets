@@ -1,16 +1,10 @@
 package pro.sky.telegrampets.counter;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -19,19 +13,8 @@ import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.repository.UserRepository;
-import pro.sky.telegrampets.timer.NotificationTaskTimer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.io.FileUtils.getFile;
@@ -145,7 +128,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
         Pattern pattern = Pattern.compile("^(\\+7)([0-9]{10})$");
         if (update.hasMessage() && isWaitNumber && pattern.matcher(update.getMessage().getText()).matches()) {
-            System.out.println(update.getMessage().getText()); //тут должна быть реализация записи номера в БД
+            getPetReportButton.saveUser(update,false);
+            userRepository.updateNumber(update.getMessage().getChatId().intValue(), update.getMessage().getText());
+
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "номер записан вам обязательно позвонят"));
             isWaitNumber = false;
         } else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()) {
@@ -260,7 +245,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     private void recordingContactsSelection(int messageId, long chatId) {
         String messageText = "Введите свой номер телефона в формате +71112223344";
-        //pattern.matcher(update.getMessage().getText()).matches())
         isWaitNumber = true;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");

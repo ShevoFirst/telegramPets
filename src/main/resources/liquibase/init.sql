@@ -8,7 +8,7 @@ CREATE TABLE user_tg
     took_a_pet        bool,
     date_time_to_took TIMESTAMP,
     chat_id           int  not null,
-    telephone_number  int  not null
+    telephone_number  TEXT
 );
 
 CREATE TABLE report_tg
