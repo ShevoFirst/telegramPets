@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
+import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.repository.UserRepository;
@@ -32,15 +33,16 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     protected boolean isACatShelter;
     private boolean isWaitNumber = false;
     private final UserRepository userRepository;
+    private final ButtonsVolunteer buttonsVolunteer;
 
     private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
         this.getPetReportButton = getPetReportButton;
         this.userRepository = userRepository;
-
+        this.buttonsVolunteer = buttonsVolunteer;
     }
 
     /**
@@ -135,6 +137,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             isWaitNumber = false;
         } else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()) {
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
+        }
+
+        if (update.getMessage().getText().equals("volonter")) {
+            sendButtonVolonter(update.getMessage().getChatId());
         }
 
     }
@@ -453,6 +459,18 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private void petReportSelection(int messageId, long chatId) {
         InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
         changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
+    }
+
+    private void sendButtonVolonter(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyMarkup(new ButtonsVolunteer().ButtonVolunteer());
+        sendMessage.setText("asdasd");
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void handleInvalidCommand(long chatId) {

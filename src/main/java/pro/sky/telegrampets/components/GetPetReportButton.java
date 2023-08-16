@@ -34,7 +34,6 @@ public class GetPetReportButton {
         this.userRepository = userRepository;
     }
 
-
     public InlineKeyboardMarkup sendMessageReportFromPet() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsList = List.of(List.of(dailyReportFormButton), List.of(callVolunteerButton), List.of(toStart));
@@ -67,7 +66,7 @@ public class GetPetReportButton {
 
         if (update.getMessage().hasPhoto()) {
             sendMessage.setText("Отчет сохранен");
-            saveUser(update,true);
+            saveUser(update, true);
             saveReport(update);
         } else {
             sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
