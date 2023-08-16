@@ -128,7 +128,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
         Pattern pattern = Pattern.compile("^(\\+7)([0-9]{10})$");
         if (update.hasMessage() && isWaitNumber && pattern.matcher(update.getMessage().getText()).matches()) {
-            getPetReportButton.saveUser(update,false);
+            getPetReportButton.saveUser(update, false);
             userRepository.updateNumber(update.getMessage().getChatId().intValue(), update.getMessage().getText());
 
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "номер записан вам обязательно позвонят"));
@@ -500,6 +500,4 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
-
-
 }
