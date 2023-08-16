@@ -70,6 +70,7 @@ public class GetPetReportButton {
             saveReport(update);
         } else {
             sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
+            saveReport(update);
         }
         return sendMessage;
     }
@@ -102,7 +103,11 @@ public class GetPetReportButton {
         int chatId = update.getMessage().getChatId().intValue();
         Report report = new Report();
         report.setDateAdded(LocalDateTime.now());
-        report.setGeneralWellBeing(update.getMessage().getText());
+        if (update.getMessage().hasText()) {
+            report.setGeneralWellBeing(update.getMessage().getText());
+        } else {
+            report.setGeneralWellBeing("No text provided");
+        }
         report.setUser(userRepository.findUserByChatId(chatId));
         reportService.reportAdd(report);
     }
