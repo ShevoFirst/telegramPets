@@ -7,11 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+
 import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.VolunteerRepository;
 
@@ -79,16 +79,11 @@ public class VolunteerController {
                             ))})
     @PutMapping("/update/{id}")
     public ResponseEntity<Volunteer> updateById(@RequestBody Volunteer volunteer) {
-        try {
-            Volunteer volunteer1 = volunteerRepository.findById(volunteer.getId()).orElseThrow();
-            volunteer.setChatId(volunteer1.getChatId());
-            volunteer.setName(volunteer1.getName());
-            volunteer.setLastName(volunteer1.getLastName());
-            return ResponseEntity.ok(volunteerRepository.save(volunteer));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ошибка при обновление волонтера" + e.getMessage());
+        Volunteer volunteer1 = volunteerRepository.save(volunteer);
+        if (volunteer1 == null) {
+            return ResponseEntity.notFound().build();
         }
-
+        return ResponseEntity.ok(volunteer1);
     }
 
     @Operation(summary = "Получение волонтера по id",
@@ -118,34 +113,6 @@ public class VolunteerController {
     @GetMapping("/read/{id}")
     public ResponseEntity<Volunteer> findByIdVolunteer(@PathVariable @Positive Long id) {
         return ResponseEntity.of(volunteerRepository.findById(id));
-    }
-
-    @Operation(summary = "Получение всех волонтера ",
-            responses = {
-                    @ApiResponse(responseCode = "200",
-                            description = "Волонтеры найдены",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Volunteer.class)
-                            )),
-                    @ApiResponse(responseCode = "500",
-                            description = "Ошибка сервера",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Volunteer.class)
-
-                            )),
-                    @ApiResponse(responseCode = "404",
-                            description = "Нет волонтера",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Volunteer.class)
-
-                            ))
-            })
-    @GetMapping("/read")
-    public List<Volunteer> getAllVolunteer() {
-        return volunteerRepository.findAll();
     }
 
     @Operation(summary = "Удаления волонтера по id",

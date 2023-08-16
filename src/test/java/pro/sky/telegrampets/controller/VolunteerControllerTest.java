@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
@@ -20,9 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import pro.sky.telegrampets.model.Volunteer;
 
 
+
 import javax.ws.rs.core.MediaType;
-
-
 
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,9 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class VolunteerControllerTest {
     @Autowired
-    MockMvc mockMvc;
+   private MockMvc mockMvc;
     @Autowired
-    ObjectMapper objectMapper;
+   private ObjectMapper objectMapper;
 
 
     @Test
@@ -76,5 +76,29 @@ public class VolunteerControllerTest {
                 .andExpect(jsonPath("$[6].name").value("Slava2"))
                 .andExpect(jsonPath("$[6].lastName").value("Safronov2"))
                 .andExpect(jsonPath("$[6].chatId").value(3L));
+    }
+
+    @Test
+    void findByIdVolunteer() throws Exception {
+        mockMvc.perform(get("/volunteer/read/16"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("16"))
+                .andExpect(jsonPath("$.name").value("Sasha"))
+                .andExpect(jsonPath("$.lastName").value("Oganesyan"))
+                .andExpect(jsonPath("$.chatId").value(4L));
+    }
+
+    @Test
+    void updateById() throws Exception {
+      Volunteer updateVolunteer = new Volunteer(16L, "Sasha", "Oganesyan", 4L);
+        long id = updateVolunteer.getId();
+        mockMvc.perform(put("/volunteer/update/{id}",id)
+                .content(objectMapper.writeValueAsString(updateVolunteer))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+               // .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Sasha"))
+                .andExpect(jsonPath("$.lastName").value("Oganesyan"))
+                .andExpect(jsonPath("$.chatId").value(4L));
     }
 }
