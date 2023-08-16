@@ -1,6 +1,7 @@
 package pro.sky.telegrampets.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -50,13 +51,8 @@ public class VolunteerController {
                             ))})
 
     @PostMapping("/save")
-    public ResponseEntity<Volunteer> save(@RequestBody Volunteer volunteer) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(volunteerRepository.save(volunteer));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public Volunteer save(@RequestBody Volunteer volunteer) {
+        return volunteerRepository.save(volunteer);
     }
 
     @Operation(summary = "Изменить данные о волонтере",
@@ -178,5 +174,38 @@ public class VolunteerController {
     @DeleteMapping("/delete/{id}")
     public void deleteVolunteerById(@PathVariable Long id) {
         volunteerRepository.deleteById(id);
+    }
+
+
+    @Operation(summary = "список волонтера ",
+            responses = {
+                    @ApiResponse(responseCode = "200",
+                            description = "список волонтеров",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                  array = @ArraySchema(schema = @Schema(implementation = Volunteer.class))
+                            )),
+                    @ApiResponse(responseCode = "500",
+                            description = "Ошибка сервера",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema (schema = @Schema(implementation = Volunteer.class))
+
+                            )),
+                    @ApiResponse(responseCode = "404",
+                            description = "Нет волонтера в списке",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Volunteer.class)
+
+                            ))
+            })
+    @GetMapping("/list")
+    public ResponseEntity<List<Volunteer>> allVolunteer() {
+        List<Volunteer> volunteers = volunteerRepository.findAll();
+        if (volunteers.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(volunteers);
     }
 }

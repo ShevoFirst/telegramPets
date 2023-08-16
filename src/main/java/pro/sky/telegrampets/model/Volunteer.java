@@ -28,6 +28,15 @@ public class Volunteer {
         this.chatId = chatId;
     }
 
+    public Volunteer() {
+    }
+
+    public Volunteer(String name, String lastName, long chatId) {
+        this.name = name;
+        this.lastName = lastName;
+        this.chatId = chatId;
+    }
+
     public long getId() {
         return id;
     }

@@ -28,9 +28,9 @@ MockitoAnnotations.initMocks(this);
         Long chatId = 1L;
         User user = new User();
         user.setFirstName("Slava");
-        user.setNumber("865854886568");
+        user.setNumber(896500328);
         userService.sendMessageToVolunteer(chatId);
-        Assertions.assertEquals("865854886568", user.getNumber());
+        Assertions.assertEquals(896500328, user.getNumber());
         Assertions.assertEquals("Slava", user.getFirstName());
     }
 }
