@@ -3,9 +3,14 @@ package pro.sky.telegrampets.counter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -16,11 +21,20 @@ import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.repository.UserRepository;
 import pro.sky.telegrampets.timer.NotificationTaskTimer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import static org.apache.commons.io.FileUtils.getFile;
 
 /**
  * класс реагирущий на реакции бота через telegram api
@@ -137,6 +151,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         } else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()) {
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
         }
+
     }
 
 
@@ -501,4 +516,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
+
+
 }

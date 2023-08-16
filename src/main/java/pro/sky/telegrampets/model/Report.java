@@ -22,10 +22,6 @@ public class Report {
     @Column(name = "id", nullable = false, unique = true)
     private long id;
 
-    @Column(name = "photo_file")
-    @Lob
-    private byte[] photoFile;
-
     @Column(name = "date_added")
     private LocalDateTime dateAdded;
 
