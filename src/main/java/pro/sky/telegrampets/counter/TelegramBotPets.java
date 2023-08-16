@@ -15,6 +15,7 @@ import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -85,7 +86,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 //блок второго уровня
                 case "Как взять животное из приюта?" -> takeAnimalSelection(messageId, chatId);
                 case "Информация о приюте" -> shelterInformationSelection(messageId, chatId);
-                case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
+                case "Позвать волонтера" -> callAVolunteer(update);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId);
                 case "В начало" -> buttonToStart(messageId, chatId);
 
@@ -412,10 +413,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, catsButtons);
     }
 
-    //метод кнопки "Позвать волонтера"
-    private void callaVolunteer(int messageId, long chatId) {
-    }
-
 
     //метод кнопки "Информация о приюте"
     private void shelterInformationSelection(int messageId, long chatId) {
@@ -517,5 +514,27 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Реализация кнопки "Позвать волонтера"
+     * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
+     * @param update
+     */
+    public void callAVolunteer(Update update) {
+        List<Long> chatIdVolunteer = List.of(931733272L, 590317122L);
+        for (Long chat : chatIdVolunteer) {
+            String user = update.getCallbackQuery().getFrom().getUserName();
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chat);
+            sendMessage.setText("Пользователь: @" + user + " просит с ним связаться.");
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
     }
 }
