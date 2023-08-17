@@ -44,12 +44,16 @@ public class GetPetReportButton {
         return keyboardMarkup;
     }
 
-    // отправка формы отчета
-    public SendMessage dailyReportForm(long chatId) {
+    /**
+     * Запрашива у пользователя общее самочуствие
+     *
+     * @param chatId с пользователем
+     * @return возвращаем сообщение
+     */
+    public SendMessage sendMessageDailyReportWellBeing(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText("Пришлите следующие данные в одном сообщении:\n" +
-                "- *Фото животного.*\n" +
+        sendMessage.setText("Пришлите текстовый отчет который состоит из: \n" +
                 "- *Рацион животного.*\n" +
                 "- *Общее самочувствие и привыкание к новому месту.*\n" +
                 "- *Изменение в поведении: отказ от старых привычек, приобретение новых.*");
@@ -57,20 +61,48 @@ public class GetPetReportButton {
     }
 
     /**
-     * Проверяем отчет и сохроняем пользователя который его отправил
+     * Запрашива у пользователя фото
+     *
+     * @param chatId с пользователем
+     * @return возвращаем сообщение
      */
-    public SendMessage dailyReportCheck(long chatId, Update update) {
+    public SendMessage sendMessageDailyReportPhoto(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText("Пришлите фото питомца");
+        return sendMessage;
+    }
+
+    /**
+     * Проверяем, что пользователь прислал фото для отчета.
+     */
+    public SendMessage dailyReportCheckPhoto(long chatId, Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setChatId(chatId);
 
         if (update.getMessage().hasPhoto()) {
-            sendMessage.setText("Отчет сохранен");
-            saveUser(update, true);
-            saveReport(update);
+            sendMessage.setText("Фото сохранено");
+            //реализовать тут сейв фото в бд
         } else {
-            sendMessage.setText("Ежедневный отчет отправлен не верно! Нет");
-            saveReport(update);
+            sendMessage.setText("Вы прислали не фото!");
+        }
+        return sendMessage;
+    }
+
+    /**
+     * Проверяем, что пользователь прислал текст для отчета.
+     */
+    public SendMessage dailyReportCheckMessage(long chatId, Update update) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setChatId(chatId);
+
+        if (update.getMessage().hasText()) {
+            sendMessage.setText("Отчет сохранен");
+            //реализовать тут сейв отчета в бд
+        } else {
+            sendMessage.setText("Вы не прислали текстовую часть отчета!");
         }
         return sendMessage;
     }

@@ -15,7 +15,6 @@ import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -36,7 +35,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final UserRepository userRepository;
     private final ButtonsVolunteer buttonsVolunteer;
 
-    private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
+    private boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
+    private boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
 
     public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer) {
         this.telegramBotConfiguration = telegramBotConfiguration;
@@ -45,6 +45,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         this.userRepository = userRepository;
         this.buttonsVolunteer = buttonsVolunteer;
     }
+
 
     /**
      * получение имени бота
@@ -92,8 +93,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
                 //блок “Прислать отчет о питомце”
                 case "Форма ежедневного отчета" -> {
-                    takeDailyReportForm(messageId, chatId, update);
-                    dailyReportFormPressed = true; // Устанавливаем флаг в true после нажатия кнопки
+                    takeDailyReportFormPhoto(messageId, chatId, update);
+                    photoCheckButton = true; // Устанавливаем флаг в true после нажатия кнопки
+                    takeDailyReportFormMessage(messageId, chatId, update);
+                    reportCheckButton = true; // Устанавливаем флаг в true после нажатия кнопки
                 }
 
                 //Блок "Информация о приюте"
@@ -123,12 +126,19 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
         }
 
-        if (dailyReportFormPressed) { // Проверяем флаг перед выполнением checkDailyReport(update)
+        if (photoCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
             if (update.hasMessage()) {
-                checkDailyReport(update);
-                dailyReportFormPressed = false;
+                checkDailyReportPhoto(update);
+                photoCheckButton = false;
             }
         }
+        if (reportCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
+            if (update.hasMessage()) {
+                checkDailyReportMessage(update);
+                photoCheckButton = false;
+            }
+        }
+
         Pattern pattern = Pattern.compile("^(\\+7)([0-9]{10})$");
         if (update.hasMessage() && isWaitNumber && pattern.matcher(update.getMessage().getText()).matches()) {
             getPetReportButton.saveUser(update, false);
@@ -394,15 +404,27 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
-    //проверка формы ежедневного отчета
-    private void checkDailyReport(Update update) {
+    //проверка что пользователь прислал фото для отчета
+    private void checkDailyReportPhoto(Update update) {
         long chatId = update.getMessage().getChatId();
-        executeSendMessage(getPetReportButton.dailyReportCheck(chatId, update));
+        executeSendMessage(getPetReportButton.dailyReportCheckPhoto(chatId, update));
     }
 
-    //вызов Форма ежедневного отчета
-    private void takeDailyReportForm(long messageId, long chatId, Update update) {
-        SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
+    //проверка что пользователь прислал текстовую часть отчета
+    private void checkDailyReportMessage(Update update) {
+        long chatId = update.getMessage().getChatId();
+        executeSendMessage(getPetReportButton.dailyReportCheckMessage(chatId, update));
+    }
+
+    //вызов кннопки о просьбе "Прислать фото питомца"
+    private void takeDailyReportFormPhoto(long messageId, long chatId, Update update) {
+        SendMessage sendMessage = getPetReportButton.sendMessageDailyReportPhoto(chatId);
+        executeSendMessage(sendMessage);
+    }
+
+    //вызов кннопки о просьбе "Прислать отчет питомца"
+    private void takeDailyReportFormMessage(long messageId, long chatId, Update update) {
+        SendMessage sendMessage = getPetReportButton.sendMessageDailyReportWellBeing(chatId);
         executeSendMessage(sendMessage);
     }
 
