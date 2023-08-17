@@ -135,7 +135,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             }
 
         }
-
         if (photoCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
             if (update.hasMessage()) {
                 PhotoSize photoSize = getPhoto(update);
@@ -147,7 +146,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             }
         }
         if (reportCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
-            if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
                 checkDailyReportMessage(update);
                 reportCheckButton = false;
             }
@@ -592,10 +591,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
         // Генерируем уникальное имя файла с сохранением расширения
-        String newFileName = photoSize.getFileId() + "." + "jpg";
-        Path targetPath = Path.of("C:\\photoTG", newFileName);
+        namePhotoId = photoSize.getFileId() + "." + "jpg";
+        Path targetPath = Path.of("C:\\photoTG", namePhotoId);
         getPetReportButton.saveUser(update, true);
-        getPetReportButton.saveReportPhotoId(update, newFileName);
+        getPetReportButton.saveReportPhotoId(update, namePhotoId);
         try {
             Files.move(downloadedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {

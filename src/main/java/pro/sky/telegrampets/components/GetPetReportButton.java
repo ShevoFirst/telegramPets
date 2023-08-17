@@ -49,12 +49,8 @@ public class GetPetReportButton {
     }
 
 
-
     /**
      * Запрашива у пользователя фото
-     *
-     * @param chatId с пользователем
-     * @return возвращаем сообщение
      */
     public SendMessage sendMessageDailyReportPhoto(long chatId) {
         SendMessage sendMessage = new SendMessage();
@@ -70,9 +66,8 @@ public class GetPetReportButton {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setChatId(chatId);
-
         if (update.getMessage().hasPhoto()) {
-            sendMessage.setText("Фото сохранено");
+            sendMessage.setText("Фото сохранено, пришлите текстовую часть отчета.");
         } else {
             sendMessage.setText("Вы прислали не фото!");
         }
@@ -120,13 +115,10 @@ public class GetPetReportButton {
      * Сохранение текствого отчет о питомце в БД
      */
     private void saveReportMessage(Update update, String namePhotoId) {
-        Report report = reportRepository.findReportByPhotoNameId(namePhotoId);
-        if (update.getMessage().hasText()) {
-            report.setGeneralWellBeing(update.getMessage().getText());
-        } else {
-            report.setGeneralWellBeing("No text provided");
-        }
-        reportService.updateUser(report);
+        Optional<Report> optionalReport = reportRepository.findReportByPhotoNameId(namePhotoId);
+        Report report = optionalReport.get();
+        report.setGeneralWellBeing(update.getMessage().getText());
+        reportService.updateReport(report);
     }
 
     /**
