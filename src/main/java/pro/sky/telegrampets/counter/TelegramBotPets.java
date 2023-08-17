@@ -140,14 +140,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
         if (photoCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
             if (update.hasMessage()) {
-                List<PhotoSize> photoSizes = update.getMessage().getPhoto();
-                PhotoSize largestPhoto = photoSizes.stream()
-                        .max(Comparator.comparing(PhotoSize::getFileSize))
-                        .orElse(null);
+                PhotoSize photoSize = getPhoto(update);
                 File file = null;
-                file = downloadPhoto(largestPhoto.getFileId());
+                file = downloadPhoto(photoSize.getFileId());
                 savePhotoToLocalFolder(file, update);
-
                 checkDailyReportPhoto(update);
                 photoCheckButton = false;
             }
@@ -577,6 +573,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Получаеем объект File содержащий информацию о файле по его индефикатору.
+     */
     private File downloadPhoto(String fileId) {
         GetFile getFile = new GetFile();
         getFile.setFileId(fileId);
@@ -588,12 +587,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     /**
-     * Сохроняет локально фалй/фото
-     *
-     * @param file
-     * @param update
-     * @return
-     * @throws IOException
+     * Скачиваем файл, генерируем уникальное имя для него,
+     * перемещаем в целевую директорию и возвращаем путь к сохраненному файлу
      */
     private Path savePhotoToLocalFolder(File file, Update update) {
         String filePath = file.getFilePath();
@@ -617,6 +612,19 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         return targetPath;
     }
 
+    /**
+     * Извлекает из update список объектов PhotoSize, которые представляют разный размер фотографий
+     * Через стрим ищет самую большую фотографию и возвращает её.
+     */
+    public PhotoSize getPhoto(Update update) {
+        if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            List<PhotoSize> photos = update.getMessage().getPhoto();
+            return photos.stream()
+                    .max(Comparator.comparing(PhotoSize::getFileSize)).orElse(null);
+        }
+        return null;
+    }
+
     //   Здесь можно реализовать логику для расширения файла
     private String getFileExtension(String filePath) {
         int dotIndex = filePath.lastIndexOf('.');
@@ -630,5 +638,4 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private String generateUniqueFileName() {
         return "unique_filename";
     }
-
 }
