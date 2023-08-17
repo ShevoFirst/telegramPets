@@ -2,19 +2,27 @@ package pro.sky.telegrampets.components;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.bots.DefaultAbsSender;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import pro.sky.telegrampets.counter.TelegramBotPets;
 import pro.sky.telegrampets.impl.ReportServiceImpl;
 import pro.sky.telegrampets.impl.UserServiceImpl;
 import pro.sky.telegrampets.model.Report;
 import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.repository.UserRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.apache.commons.io.FileUtils.getFile;
 
@@ -24,6 +32,8 @@ public class GetPetReportButton {
     private final UserServiceImpl userService;
     private final ReportServiceImpl reportService;
     private final UserRepository userRepository;
+
+
     protected static final InlineKeyboardButton dailyReportFormButton = new InlineKeyboardButton("Форма ежедневного отчета");
     protected static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
     protected static final InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
@@ -83,7 +93,8 @@ public class GetPetReportButton {
 
         if (update.getMessage().hasPhoto()) {
             sendMessage.setText("Фото сохранено");
-            //реализовать тут сейв фото в бд
+            saveUser(update, true);
+//            telegramBotPets.savePhotoFromUpdate(update);
         } else {
             sendMessage.setText("Вы прислали не фото!");
         }
@@ -100,7 +111,7 @@ public class GetPetReportButton {
 
         if (update.getMessage().hasText()) {
             sendMessage.setText("Отчет сохранен");
-            //реализовать тут сейв отчета в бд
+            saveReportMessage(update);
         } else {
             sendMessage.setText("Вы не прислали текстовую часть отчета!");
         }
@@ -129,9 +140,9 @@ public class GetPetReportButton {
     }
 
     /**
-     * Сохранение отчета о питомце в БД
+     * Сохранение текствого отчет о питомце в БД
      */
-    private void saveReport(Update update) {
+    private void saveReportMessage(Update update) {
         int chatId = update.getMessage().getChatId().intValue();
         Report report = new Report();
         report.setDateAdded(LocalDateTime.now());
@@ -143,5 +154,8 @@ public class GetPetReportButton {
         report.setUser(userRepository.findUserByChatId(chatId));
         reportService.reportAdd(report);
     }
+
+
 }
+
 

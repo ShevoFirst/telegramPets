@@ -3,8 +3,10 @@ package pro.sky.telegrampets.counter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -14,8 +16,16 @@ import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.repository.UserRepository;
+import org.telegram.telegrambots.meta.api.objects.File;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.io.FileUtils.getFile;
@@ -35,6 +45,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final UserRepository userRepository;
     private final ButtonsVolunteer buttonsVolunteer;
 
+
     private boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
     private boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
 
@@ -44,6 +55,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         this.getPetReportButton = getPetReportButton;
         this.userRepository = userRepository;
         this.buttonsVolunteer = buttonsVolunteer;
+
     }
 
 
@@ -128,6 +140,17 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
         if (photoCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
             if (update.hasMessage()) {
+                List<PhotoSize> photoSizes = update.getMessage().getPhoto();
+                PhotoSize largestPhoto = photoSizes.stream()
+                        .max(Comparator.comparing(PhotoSize::getFileSize))
+                        .orElse(null);
+                File file = null;
+                try {
+                    file = downloadPhoto(largestPhoto.getFileId());
+                    savePhotoToLocalFolder(file, update);
+                } catch (TelegramApiException | IOException e) {
+                    throw new RuntimeException(e);
+                }
                 checkDailyReportPhoto(update);
                 photoCheckButton = false;
             }
@@ -541,7 +564,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     /**
      * Реализация кнопки "Позвать волонтера"
      * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
-     * @param update
      */
     public void callAVolunteer(Update update) {
         List<Long> chatIdVolunteer = List.of(931733272L, 590317122L);
@@ -556,7 +578,52 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 throw new RuntimeException(e);
             }
         }
-
-
     }
+
+    private File downloadPhoto(String fileId) throws TelegramApiException {
+        GetFile getFile = new GetFile();
+        getFile.setFileId(fileId);
+        return execute(getFile);
+    }
+
+    /**
+     * Сохроняет локально фалй/фото
+     *
+     * @param file
+     * @param update
+     * @return
+     * @throws IOException
+     */
+    private Path savePhotoToLocalFolder(File file, Update update) throws IOException {
+        String filePath = file.getFilePath();
+        java.io.File downloadedFile = null;
+        try {
+            downloadedFile = downloadFile(filePath);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+        // Генерируем уникальное имя файла с сохранением расширения
+        String newFileName = update.getMessage().getFrom().getUserName() +
+                "_" + update.getMessage().getChatId() + UUID.randomUUID() + "." + "jpg";
+
+        Path targetPath = Path.of("C:\\photoTG", newFileName);
+        Files.move(downloadedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+        return targetPath;
+    }
+
+    //   Здесь можно реализовать логику для расширения файла
+    private String getFileExtension(String filePath) {
+        int dotIndex = filePath.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < filePath.length() - 1) {
+            return filePath.substring(dotIndex + 1);
+        }
+        return "jpg";
+    }
+
+    //   Здесь можно реализовать логику для генерации уникального имени файла
+    private String generateUniqueFileName() {
+        return "unique_filename";
+    }
+
 }
