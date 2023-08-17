@@ -145,12 +145,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                         .max(Comparator.comparing(PhotoSize::getFileSize))
                         .orElse(null);
                 File file = null;
-                try {
-                    file = downloadPhoto(largestPhoto.getFileId());
-                    savePhotoToLocalFolder(file, update);
-                } catch (TelegramApiException | IOException e) {
-                    throw new RuntimeException(e);
-                }
+                file = downloadPhoto(largestPhoto.getFileId());
+                savePhotoToLocalFolder(file, update);
+
                 checkDailyReportPhoto(update);
                 photoCheckButton = false;
             }
@@ -580,10 +577,14 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
     }
 
-    private File downloadPhoto(String fileId) throws TelegramApiException {
+    private File downloadPhoto(String fileId) {
         GetFile getFile = new GetFile();
         getFile.setFileId(fileId);
-        return execute(getFile);
+        try {
+            return execute(getFile);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -594,7 +595,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * @return
      * @throws IOException
      */
-    private Path savePhotoToLocalFolder(File file, Update update) throws IOException {
+    private Path savePhotoToLocalFolder(File file, Update update) {
         String filePath = file.getFilePath();
         java.io.File downloadedFile = null;
         try {
@@ -607,7 +608,11 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 "_" + update.getMessage().getChatId() + UUID.randomUUID() + "." + "jpg";
 
         Path targetPath = Path.of("C:\\photoTG", newFileName);
-        Files.move(downloadedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            Files.move(downloadedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return targetPath;
     }
