@@ -5,4 +5,6 @@ import pro.sky.telegrampets.model.Report;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
+    Report findReportByPhotoNameId(String name);
+
 }

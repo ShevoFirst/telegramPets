@@ -28,6 +28,9 @@ public class Report {
     @Column(name = "general_well_being")
     private String generalWellBeing;
 
+    @Column(name = "photo_name")
+    private String photoNameId;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

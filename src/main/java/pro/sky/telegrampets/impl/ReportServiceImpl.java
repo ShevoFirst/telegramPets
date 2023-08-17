@@ -18,4 +18,9 @@ public class ReportServiceImpl implements ReportService {
         return reportService.save(report);
     }
 
+    @Override
+    public void updateUser(Report report) {
+        reportService.save(report);
+    }
+
 }
