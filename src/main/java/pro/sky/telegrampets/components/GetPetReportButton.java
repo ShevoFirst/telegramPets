@@ -128,6 +128,7 @@ public class GetPetReportButton {
         report.setDateAdded(LocalDateTime.now());
         report.setPhotoNameId(namePhotoId);
         report.setGeneralWellBeing("No text provided");
+        report.setCheckReport(false);
         report.setUser(userRepository.findUserByChatId(chatId));
         reportService.reportAdd(report);
     }

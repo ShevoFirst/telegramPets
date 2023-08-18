@@ -22,10 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByChatId(int chatId);
 
     Optional<User> findByDateTimeToTookBefore(LocalDateTime dateTimeToTook);
+
     @Transactional
     @Modifying
     @Query("UPDATE User u set u.number = ?2 where u.chatId = ?1")
     int updateNumber(int chatId, String num);
-
 
 }
