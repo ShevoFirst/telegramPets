@@ -1,8 +1,8 @@
 package pro.sky.telegrampets.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysema.commons.lang.Assert;
-import org.assertj.core.api.Assertions;
+
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
