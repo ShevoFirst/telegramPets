@@ -16,8 +16,6 @@ import pro.sky.telegrampets.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.apache.commons.io.FileUtils.getFile;
-
 @Service
 public class GetPetReportButton {
     @Autowired
@@ -114,7 +112,7 @@ public class GetPetReportButton {
     /**
      * Сохранение текствого отчет о питомце в БД
      */
-    private void saveReportMessage(Update update, String namePhotoId) {
+    void saveReportMessage(Update update, String namePhotoId) {
         Optional<Report> optionalReport = reportRepository.findReportByPhotoNameId(namePhotoId);
         Report report = optionalReport.get();
         report.setGeneralWellBeing(update.getMessage().getText());
