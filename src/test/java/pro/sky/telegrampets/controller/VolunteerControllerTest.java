@@ -96,7 +96,6 @@ public class VolunteerControllerTest {
                 .content(objectMapper.writeValueAsString(updateVolunteer))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-               // .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("Sasha"))
                 .andExpect(jsonPath("$.lastName").value("Oganesyan"))
                 .andExpect(jsonPath("$.chatId").value(4L));

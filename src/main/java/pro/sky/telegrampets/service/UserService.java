@@ -6,7 +6,6 @@ import pro.sky.telegrampets.model.User;
 import java.util.Optional;
 
 public interface UserService {
-    SendMessage sendMessageToVolunteer(Long chatId);
 
     User userAdd(User user);
 
@@ -14,7 +13,7 @@ public interface UserService {
 
     boolean checkIdChatUser(int chatId);
 
-    void updateUser(User user);
+    User updateUser(User user);
 
     Optional<User> getUserByChatId(int chatId);
 }

@@ -81,4 +81,11 @@ public class User {
     public void setDateTimeToTook(LocalDateTime dateTimeToTook) {
         this.dateTimeToTook = dateTimeToTook;
     }
+
+    public User(long id, String firstName, int chatId, int number) {
+        this.id = id;
+        this.firstName = firstName;
+        this.chatId = chatId;
+        this.number = number;
+    }
 }

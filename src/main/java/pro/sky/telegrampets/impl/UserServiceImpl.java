@@ -27,23 +27,6 @@ public class UserServiceImpl implements UserService {
 */
     }
 
-    @Override
-    public SendMessage sendMessageToVolunteer(Long chatId) {
-        String text = "привет волонтер нужна твоя помощь";
-        User user = userRepository.getUserByChatId(chatId).get();
-        String volunteerMessage = String.format("""
-                        <b>%s</b> позвать волонтера
-                        номер телефона: %s.
-                        имя пользователя: %s
-                         Прекрепленое сообщение: %s""",
-                user.getNumber(),
-                user.getFirstName(),
-                text);
-        String telegramP = "String.valueOf(volunteer.getChatId());";
-        /*sendMessageVolunteers.setParseMode(String.valueOf(ParseMode.HTML));*/
-        return new SendMessage(telegramP, volunteerMessage);
-    }
-
     //Добавить нового пользователя в БД
     @Override
     public User userAdd(User user) {
@@ -64,8 +47,8 @@ public class UserServiceImpl implements UserService {
 
     //Обновить пользователя в бд
     @Override
-    public void updateUser(User user) {
-        userRepository.save(user);
+    public User updateUser(User user) {
+      return userRepository.save(user);
     }
 
     //Получить юзера из бд

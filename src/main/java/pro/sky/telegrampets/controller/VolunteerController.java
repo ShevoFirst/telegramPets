@@ -102,7 +102,7 @@ public class VolunteerController {
 
                             )),
                     @ApiResponse(responseCode = "404",
-                            description = "Нет волонтера с таким id",
+                            description = "Волонтер не найден",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = Volunteer.class)
