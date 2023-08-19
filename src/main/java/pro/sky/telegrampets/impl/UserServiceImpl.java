@@ -1,9 +1,8 @@
 package pro.sky.telegrampets.impl;
+
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.repository.UserRepository;
-import pro.sky.telegrampets.service.UserService;
 
 import java.util.Optional;
 
@@ -14,8 +13,6 @@ public class UserServiceImpl {
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-
 
     //Добавить нового пользователя в БД
     public User userAdd(User user) {
@@ -41,6 +38,4 @@ public class UserServiceImpl {
     public Optional<User> getUserByChatId(int chatId) {
         return userRepository.findByChatId(chatId);
     }
-
-
 }
