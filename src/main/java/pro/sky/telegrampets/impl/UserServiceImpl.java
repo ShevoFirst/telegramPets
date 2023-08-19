@@ -8,17 +8,14 @@ import pro.sky.telegrampets.service.UserService;
 import java.util.Optional;
 
 @Component
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl {
     private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    @Override
-    public SendMessage sendMessageToVolunteer(Long chatId) {
-        return null;
-    }
+
 
     //Добавить нового пользователя в БД
     public User userAdd(User user) {

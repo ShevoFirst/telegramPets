@@ -5,7 +5,11 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -135,7 +139,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Cписок причин" -> listReasonsSelection(messageId, chatId);
 
                 //блок Волонтера
-                case "Отчеты" -> reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
+                case "Отчеты" -> {
+                    reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
+                    sendImageFromFileId(String.valueOf(update.getCallbackQuery().getMessage().getChatId()));
+                }
                 case "ОТЧЕТ СДАН" -> {
                     reportSubmitted(update);
                     reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
@@ -185,6 +192,22 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             execute(buttonsVolunteer.reviewListOfReports(chatId));
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
+        }
+
+    }
+
+    public void sendImageFromFileId(String chatId) {
+        // Create send method
+        SendPhoto sendPhotoRequest = new SendPhoto();
+        // Set destination chat id
+        sendPhotoRequest.setChatId(chatId);
+        // Set the photo url as a simple photo
+        sendPhotoRequest.setPhoto(new InputFile("AgACAgIAAxkBAAIFfGTgeJPke7lK6kcjJVQutOAjH4S6AAIPzDEb0UQAAUtYMYlzKbeYagEAAwIAA3gAAzAE"));
+        try {
+            // Execute the method
+            execute(sendPhotoRequest);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 

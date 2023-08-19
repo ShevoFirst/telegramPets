@@ -19,8 +19,8 @@ import java.util.*;
 @Service
 public class GetPetReportButton {
     @Autowired
-    private final UserServiceImpl userService;
-    private final ReportServiceImpl reportService;
+    private final UserServiceImpl userServiceImpl;
+    private final ReportServiceImpl reportServiceImpl;
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
 
@@ -29,9 +29,9 @@ public class GetPetReportButton {
     protected static final InlineKeyboardButton callVolunteerButton = new InlineKeyboardButton("Позвать волонтера");
     protected static final InlineKeyboardButton toStart = new InlineKeyboardButton("В начало");
 
-    public GetPetReportButton(UserServiceImpl userService, ReportServiceImpl reportService, UserRepository userRepository, ReportRepository reportRepository) {
-        this.userService = userService;
-        this.reportService = reportService;
+    public GetPetReportButton(UserServiceImpl userServiceImpl, ReportServiceImpl reportService, UserRepository userRepository, ReportRepository reportRepository) {
+        this.userServiceImpl = userServiceImpl;
+        this.reportServiceImpl = reportService;
         this.userRepository = userRepository;
         this.reportRepository = reportRepository;
     }
@@ -93,19 +93,19 @@ public class GetPetReportButton {
      */
     public void saveUser(Update update, boolean tookAPET) {
         int chatId = update.getMessage().getChatId().intValue();
-        Optional<User> userOptional = userService.getUserByChatId(chatId);
+        Optional<User> userOptional = userServiceImpl.getUserByChatId(chatId);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setDateTimeToTook(LocalDateTime.now());
-            userService.updateUser(user);
+            userServiceImpl.updateUser(user);
         } else {
             User newUser = new User();
             newUser.setFirstName(update.getMessage().getFrom().getFirstName());
             newUser.setChatId(chatId);
             newUser.setTookAPet(tookAPET);
             newUser.setDateTimeToTook(LocalDateTime.now());
-            userService.userAdd(newUser);
+            userServiceImpl.userAdd(newUser);
         }
     }
 
@@ -116,7 +116,7 @@ public class GetPetReportButton {
         Optional<Report> optionalReport = reportRepository.findReportByPhotoNameId(namePhotoId);
         Report report = optionalReport.get();
         report.setGeneralWellBeing(update.getMessage().getText());
-        reportService.updateReport(report);
+        reportServiceImpl.updateReport(report);
     }
 
     /**
@@ -130,7 +130,7 @@ public class GetPetReportButton {
         report.setGeneralWellBeing("No text provided");
         report.setCheckReport(false);
         report.setUser(userRepository.findUserByChatId(chatId));
-        reportService.reportAdd(report);
+        reportServiceImpl.reportAdd(report);
     }
 
 

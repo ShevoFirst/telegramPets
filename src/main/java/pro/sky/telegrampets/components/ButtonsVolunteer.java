@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 @Component
 public class ButtonsVolunteer {
     private final ReportRepository reportRepository;
-    private final ReportServiceImpl reportService;
+    private final ReportServiceImpl reportServiceImpl;
 
 
-    public ButtonsVolunteer(ReportRepository reportRepository, ReportServiceImpl reportService) {
+    public ButtonsVolunteer(ReportRepository reportRepository, ReportServiceImpl reportServiceImpl) {
         this.reportRepository = reportRepository;
-        this.reportService = reportService;
+        this.reportServiceImpl = reportServiceImpl;
     }
 
     /**
@@ -84,7 +84,7 @@ public class ButtonsVolunteer {
     public void reportSubmitted(Long idReport) {
         Report report = reportRepository.findReportById(idReport);
         report.setCheckReport(true);
-        reportService.updateReport(report);
+        reportServiceImpl.updateReport(report);
     }
 
 
