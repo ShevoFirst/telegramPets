@@ -25,11 +25,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    public UserService getUserService() {
-        return userService;
-    }
-
-    @Operation(summary = "Получить пользователь по chatId")
+    @Operation(summary = "Получить пользователя по chatId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Пользователь найден",
                     content = @Content(
@@ -43,7 +39,7 @@ public class UserController {
         return ResponseEntity.of(userService.getUserByChatId(chatId));
     }
 
-    @Operation(summary = "Добовления пользователь")
+    @Operation(summary = "Добовления пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Пользователь добавлен",
                     content = @Content(
@@ -58,7 +54,7 @@ public class UserController {
         return userService.userAdd(user);
     }
 
-    @Operation(summary = "Обновление иформации о пользователь")
+    @Operation(summary = "Обновление иформации о пользователе")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Пользователь обновлен",
                     content = @Content(
@@ -74,7 +70,7 @@ public class UserController {
         return ResponseEntity.ok(user1);
     }
 
-    @Operation(summary = "Удалить пользователь")
+    @Operation(summary = "Удалить пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Пользователь удален"),
             @ApiResponse(responseCode = "400", description = "Пользователь не найден"),
