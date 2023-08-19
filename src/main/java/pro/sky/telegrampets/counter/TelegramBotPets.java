@@ -1,25 +1,32 @@
 package pro.sky.telegrampets.counter;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
+import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
-import pro.sky.telegrampets.timer.NotificationTaskTimer;
+import org.telegram.telegrambots.meta.api.objects.File;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -35,16 +42,24 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     protected boolean isACatShelter;
     private boolean isWaitNumber = false;
     private final UserRepository userRepository;
+    private final ButtonsVolunteer buttonsVolunteer;
+    private String namePhotoId;
+    private ReportRepository reportRepository;
+    int sendMessageReport; // сохраняем текстовую часть репорта для парсинга ID
 
-    private boolean dailyReportFormPressed = false; // флаг на проверку нажатия кнопки
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository) {
+    private boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
+    private boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
+
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
         this.getPetReportButton = getPetReportButton;
         this.userRepository = userRepository;
-
+        this.buttonsVolunteer = buttonsVolunteer;
+        this.reportRepository = reportRepository;
     }
+
 
     /**
      * получение имени бота
@@ -69,6 +84,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      */
     @Override
     public void onUpdateReceived(Update update) {
+
         //в случае если пользователь введет команду "/start" выведутся кнопки 1ого уровня
         if (isStartCommand(update)) {
             long chatId = update.getMessage().getChatId();
@@ -86,28 +102,25 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 //блок второго уровня
                 case "Как взять животное из приюта?" -> takeAnimalSelection(messageId, chatId);
                 case "Информация о приюте" -> shelterInformationSelection(messageId, chatId);
-                case "Позвать волонтера" -> callaVolunteer(messageId, chatId);
+                case "Позвать волонтера" -> callAVolunteer(update);
                 case "Прислать отчет о питомце" -> petReportSelection(messageId, chatId);
                 case "В начало" -> buttonToStart(messageId, chatId);
 
                 //блок “Прислать отчет о питомце”
                 case "Форма ежедневного отчета" -> {
-                    takeDailyReportForm(messageId, chatId, update);
-                    dailyReportFormPressed = true; // Устанавливаем флаг в true после нажатия кнопки
+                    takeDailyReportFormPhoto(chatId);
+                    photoCheckButton = true; // Устанавливаем флаг в true после нажатия кнопки
                 }
 
                 //Блок "Информация о приюте"
                 case "Информация о приюте для кошек" -> aboutCatShelterSelection(messageId, chatId);
                 case "Расписание работы приюта для кошек" -> catShelterWorkingHoursSelection(messageId, chatId);
                 case "Контакты охраны приюта для кошек" -> catShelterSecurityContactSelection(messageId, chatId);
-
                 case "Информация о приюте для собак" -> aboutDogShelterSelection(messageId, chatId);
                 case "Расписание работы приюта для собак" -> dogShelterWorkingHoursSelection(messageId, chatId);
                 case "Контакты охраны приюта для собак" -> dogShelterSecurityContactSelection(messageId, chatId);
-
                 case "Общие правила поведения" -> safetyRecommendationsSelection(messageId, chatId);
                 case "Запись ваших контактов", "Запись контактов" -> recordingContactsSelection(messageId, chatId);
-
 
                 //блок “Как взять животное из приюта”
                 case "Правила знакомства" -> datingRulesSelection(messageId, chatId);
@@ -119,26 +132,317 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "Обустройство для взрослой собаки" -> arrangementAdultSelectionDog(messageId, chatId);
                 case "Обустройство для ограниченного" -> arrangementLimitedSelection(messageId, chatId);
                 case "Cписок причин" -> listReasonsSelection(messageId, chatId);
+
+                //блок Волонтера
+                case "Отчеты" -> {
+                    reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
+                    sendImageFromFileId(String.valueOf(update.getCallbackQuery().getMessage().getChatId()));
+                }
+                case "ОТЧЕТ СДАН" -> {
+                    reportSubmitted(update);
+                    reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
+                }
             }
 
         }
-
-        if (dailyReportFormPressed) { // Проверяем флаг перед выполнением checkDailyReport(update)
+        if (photoCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
             if (update.hasMessage()) {
-                checkDailyReport(update);
-                dailyReportFormPressed = false;
+                PhotoSize photoSize = getPhoto(update);
+                File file = downloadPhoto(photoSize.getFileId());
+                savePhotoToLocalFolder(file, update);
+                checkDailyReportPhoto(update);
+                photoCheckButton = false;
+                reportCheckButton = true;
             }
         }
+        if (reportCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал текст отчета
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                checkDailyReportMessage(update);
+                reportCheckButton = false;
+            }
+        }
+
         Pattern pattern = Pattern.compile("^(\\+7)([0-9]{10})$");
         if (update.hasMessage() && isWaitNumber && pattern.matcher(update.getMessage().getText()).matches()) {
-            System.out.println(update.getMessage().getText()); //тут должна быть реализация записи номера в БД
+            getPetReportButton.saveUser(update, false);
+            userRepository.updateNumber(update.getMessage().getChatId().intValue(), update.getMessage().getText());
+
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "номер записан вам обязательно позвонят"));
             isWaitNumber = false;
         } else if (update.hasMessage() && isWaitNumber && !pattern.matcher(update.getMessage().getText()).matches()) {
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
         }
+
+        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("volonter")) {
+            sendButtonVolonter(update.getMessage().getChatId());
+        }
+
     }
 
+    //просмотр отчетов питомцев
+    private void reviewListOfReports(long chatId) {
+        System.out.println(sendMessageReport);
+        sendMessageReport = buttonsVolunteer.parseReportNumber(buttonsVolunteer.reviewListOfReports(chatId).getText()); //Сохроняем ID отчета
+        try {
+            execute(buttonsVolunteer.reviewListOfReports(chatId));
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void sendImageFromFileId(String chatId) {
+        // Create send method
+        SendPhoto sendPhotoRequest = new SendPhoto();
+        // Set destination chat id
+        sendPhotoRequest.setChatId(chatId);
+        // Set the photo url as a simple photo
+        sendPhotoRequest.setPhoto(new InputFile("AgACAgIAAxkBAAIFfGTgeJPke7lK6kcjJVQutOAjH4S6AAIPzDEb0UQAAUtYMYlzKbeYagEAAwIAA3gAAzAE"));
+        try {
+            // Execute the method
+            execute(sendPhotoRequest);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Если отчет сдан
+    private void reportSubmitted(Update update) {
+        changeMessage(update.getCallbackQuery().getMessage().getChatId(), "Отчет сдан");
+        System.out.println(sendMessageReport);
+        buttonsVolunteer.reportSubmitted((long) sendMessageReport);
+    }
+
+    //Провека на нажатия /start
+    private boolean isStartCommand(Update update) {
+        return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
+    }
+
+    private void sendButtonVolonter(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyMarkup(buttonsVolunteer.buttonVolunteer());
+        sendMessage.setText("Волонтерская панель");
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    //проверка что пользователь прислал фото для отчета и сохранеяем в БД
+    private void checkDailyReportPhoto(Update update) {
+        long chatId = update.getMessage().getChatId();
+        executeSendMessage(getPetReportButton.dailyReportCheckPhoto(chatId, update));
+    }
+
+    //проверка что пользователь прислал текстовую часть отчета и сохроняем в БД
+    private void checkDailyReportMessage(Update update) {
+        long chatId = update.getMessage().getChatId();
+        executeSendMessage(getPetReportButton.dailyReportCheckMessage(chatId, update, namePhotoId));
+    }
+
+    //вызов кннопки о просьбе "Прислать фото питомца"
+    private void takeDailyReportFormPhoto(long chatId) {
+        SendMessage sendMessage = getPetReportButton.sendMessageDailyReportPhoto(chatId);
+        executeSendMessage(sendMessage);
+    }
+
+    //метод кнопки "Как взять животное из приюта?"
+    private void takeAnimalSelection(int messageId, long chatId) {
+        String messageText = "Выберите, что вас интересует";
+        InlineKeyboardMarkup catsButtons = buttons.takeAnimalButton(isACatShelter);
+        changeMessage(messageId, chatId, messageText, catsButtons);
+    }
+
+
+    //метод кнопки "Информация о приюте"
+    private void shelterInformationSelection(int messageId, long chatId) {
+        String messageText = "Здравствуйте, дорогой пользователь.";
+        InlineKeyboardMarkup shelterButtons = buttons.shelterInformationButton(isACatShelter);
+        changeMessage(messageId, chatId, messageText, shelterButtons);
+    }
+
+    private void startSelection(long chatId, Update update) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyMarkup(new Buttons().selectionAnimalButtons());
+        sendMessage.setText("Привет! " + update.getMessage().getFrom().getFirstName() + " Выберите приют который Вас интересует:");
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void buttonToStart(int messageId, long chatId) {
+        String messageText = " Выберите приют который Вас интересует:";
+        changeMessage(messageId, chatId, messageText, new Buttons().selectionAnimalButtons());
+        isWaitNumber = false;
+        photoCheckButton = false;
+        reportCheckButton = false;
+    }
+
+    private void catSelection(int messageId, long chatId) {
+        isACatShelter = true;
+        String messageText = "Вы выбрали приют для кошек";
+        InlineKeyboardMarkup catsButtons = buttons.secondLayerButtons();
+        changeMessage(messageId, chatId, messageText, catsButtons);
+    }
+
+    private void dogSelection(int messageId, long chatId) {
+        isACatShelter = false;
+        InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
+        changeMessage(messageId, chatId, "Вы выбрали собачий приют", dogButtons);
+    }
+
+    //метод кнопки "Прислать отчет о питомце"
+    private void petReportSelection(int messageId, long chatId) {
+        InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
+        changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
+    }
+
+
+    private void handleInvalidCommand(long chatId) {
+        SendMessage messageText = new SendMessage();
+        messageText.setChatId(chatId);
+        messageText.setText("не правильная команда");
+        executeSendMessage(messageText);
+    }
+
+    private void executeSendMessage(SendMessage sendMessage) {
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * метод для создания/изменения сообщения
+     */
+    private void changeMessage(int messageId, long chatIdInButton, String messageText, InlineKeyboardMarkup keyboardMarkup) {
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(String.valueOf(chatIdInButton));
+        editMessageText.setText(messageText);
+        editMessageText.setMessageId(messageId);
+        editMessageText.setReplyMarkup(keyboardMarkup);
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void changeMessage(long chatIdInButton, InlineKeyboardMarkup keyboardMarkup) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatIdInButton));
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void changeMessage(long chatIdInButton, String messageText) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatIdInButton));
+        sendMessage.setText(messageText);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Реализация кнопки "Позвать волонтера"
+     * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
+     */
+    public void callAVolunteer(Update update) {
+        List<Long> chatIdVolunteer = List.of(931733272L, 590317122L);
+        for (Long chat : chatIdVolunteer) {
+            String user = update.getCallbackQuery().getFrom().getUserName();
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chat);
+            sendMessage.setText("Пользователь: @" + user + " просит с ним связаться.");
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+//фыв
+    /**
+     * Получаеем объект File содержащий информацию о файле по его индефикатору.
+     */
+    private File downloadPhoto(String fileId) {
+        GetFile getFile = new GetFile();
+        getFile.setFileId(fileId);
+        try {
+            return execute(getFile);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Скачиваем файл, генерируем уникальное имя для него,
+     * перемещаем в целевую директорию и возвращаем путь к сохраненному файлу
+     */
+    private Path savePhotoToLocalFolder(File file, Update update) {
+        PhotoSize photoSize = getPhoto(update);
+        String filePath = file.getFilePath();
+        java.io.File downloadedFile;
+        try {
+            downloadedFile = downloadFile(filePath);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+        // Генерируем уникальное имя файла с сохранением расширения
+        namePhotoId = photoSize.getFileId() + "." + "jpg";
+        Path targetPath = Path.of("src/main/resources/pictures", namePhotoId);
+        getPetReportButton.saveUser(update, true);
+        getPetReportButton.saveReportPhotoId(update, namePhotoId);
+        try {
+            Files.move(downloadedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return targetPath;
+    }
+
+    /**
+     * Извлекает из update список объектов PhotoSize, которые представляют разный размер фотографий
+     * Через стрим ищет самую большую фотографию и возвращает её.
+     */
+    public PhotoSize getPhoto(Update update) {
+        if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            List<PhotoSize> photos = update.getMessage().getPhoto();
+            return photos.stream()
+                    .max(Comparator.comparing(PhotoSize::getFileSize)).orElse(null);
+
+        }
+        return null;
+    }
+
+    //   Здесь можно реализовать логику для расширения файла
+    private String getFileExtension(String filePath) {
+        int dotIndex = filePath.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < filePath.length() - 1) {
+            return filePath.substring(dotIndex + 1);
+        }
+        return "jpg";
+    }
+
+    //   Здесь можно реализовать логику для генерации уникального имени файла
+    private String generateUniqueFileName() {
+        return "unique_filename";
+    }
 
     private void aboutCatShelterSelection(int messageId, long chatId) {
         String messageText = """
@@ -245,7 +549,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     private void recordingContactsSelection(int messageId, long chatId) {
         String messageText = "Введите свой номер телефона в формате +71112223344";
-        //pattern.matcher(update.getMessage().getText()).matches())
         isWaitNumber = true;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
@@ -382,123 +685,5 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
-    }
-
-    private boolean isStartCommand(Update update) {
-        return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
-    }
-
-    //проверка формы ежедневного отчета
-    private void checkDailyReport(Update update) {
-        long chatId = update.getMessage().getChatId();
-        executeSendMessage(getPetReportButton.dailyReportCheck(chatId, update));
-    }
-
-    //вызов Форма ежедневного отчета
-    private void takeDailyReportForm(long messageId, long chatId, Update update) {
-        SendMessage sendMessage = getPetReportButton.dailyReportForm(chatId);
-        executeSendMessage(sendMessage);
-    }
-
-    //метод кнопки "Как взять животное из приюта?"
-    private void takeAnimalSelection(int messageId, long chatId) {
-        String messageText = "Выберите, что вас интересует";
-        InlineKeyboardMarkup catsButtons = buttons.takeAnimalButton(isACatShelter);
-        changeMessage(messageId, chatId, messageText, catsButtons);
-    }
-
-    //метод кнопки "Позвать волонтера"
-    private void callaVolunteer(int messageId, long chatId) {
-    }
-
-
-    //метод кнопки "Информация о приюте"
-    private void shelterInformationSelection(int messageId, long chatId) {
-        String messageText = "Здравствуйте, дорогой пользователь.";
-        InlineKeyboardMarkup shelterButtons = buttons.shelterInformationButton(isACatShelter);
-        changeMessage(messageId, chatId, messageText, shelterButtons);
-    }
-
-    private void startSelection(long chatId, Update update) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setReplyMarkup(new Buttons().selectionAnimalButtons());
-        sendMessage.setText("Привет! " + update.getMessage().getFrom().getFirstName() + " Выберите приют который Вас интересует:");
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void buttonToStart(int messageId, long chatId) {
-        String messageText = " Выберите приют который Вас интересует:";
-        changeMessage(messageId, chatId, messageText, new Buttons().selectionAnimalButtons());
-        isWaitNumber = false;
-    }
-
-    private void catSelection(int messageId, long chatId) {
-        isACatShelter = true;
-        String messageText = "Вы выбрали приют для кошек";
-        InlineKeyboardMarkup catsButtons = buttons.secondLayerButtons();
-        changeMessage(messageId, chatId, messageText, catsButtons);
-    }
-
-    private void dogSelection(int messageId, long chatId) {
-        isACatShelter = false;
-        InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
-        changeMessage(messageId, chatId, "Вы выбрали собачий приют", dogButtons);
-    }
-
-    //метод кнопки "Прислать отчет о питомце"
-    private void petReportSelection(int messageId, long chatId) {
-        InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
-        changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
-    }
-
-    private void handleInvalidCommand(long chatId) {
-        SendMessage messageText = new SendMessage();
-        messageText.setChatId(chatId);
-        messageText.setText("не правильная команда");
-        executeSendMessage(messageText);
-    }
-
-    private void executeSendMessage(SendMessage sendMessage) {
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * метод для создания/изменения сообщения
-     *
-     * @param messageId      Id сообщения не может быть null
-     * @param chatIdInButton
-     * @param messageText
-     */
-    private void changeMessage(int messageId, long chatIdInButton, String messageText, InlineKeyboardMarkup keyboardMarkup) {
-        EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setChatId(String.valueOf(chatIdInButton));
-        editMessageText.setText(messageText);
-        editMessageText.setMessageId(messageId);
-        editMessageText.setReplyMarkup(keyboardMarkup);
-        try {
-            execute(editMessageText);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void changeMessage(long chatIdInButton, String messageText) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatIdInButton));
-        sendMessage.setText(messageText);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

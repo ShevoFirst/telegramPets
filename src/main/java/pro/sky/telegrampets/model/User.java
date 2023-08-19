@@ -7,8 +7,11 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -29,63 +32,11 @@ public class User {
     private int chatId;
 
     @Column(name = "telephone_number")
-    private int number;
+    private String number;
 
     @Column(name = "date_time_to_took")
     private LocalDateTime dateTimeToTook;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public Boolean getTookAPet() {
-        return tookAPet;
-    }
-
-    public void setTookAPet(Boolean tookAPet) {
-        this.tookAPet = tookAPet;
-    }
-
-    public int getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(int chatId) {
-        this.chatId = chatId;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public LocalDateTime getDateTimeToTook() {
-        return dateTimeToTook;
-    }
-
-    public void setDateTimeToTook(LocalDateTime dateTimeToTook) {
-        this.dateTimeToTook = dateTimeToTook;
-    }
-
-    public User(long id, String firstName, int chatId, int number) {
-        this.id = id;
-        this.firstName = firstName;
-        this.chatId = chatId;
-        this.number = number;
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Report> reports = new ArrayList<>();
 }

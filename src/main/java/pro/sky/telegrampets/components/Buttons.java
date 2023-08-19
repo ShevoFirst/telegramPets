@@ -12,10 +12,6 @@ import java.util.List;
 
 @Component
 public class Buttons {
-
-    // InlineKeyBoardButton поле text это то что будет написано на кнопке
-
-
     /**
      * @return returns dog button and cat button
      */
