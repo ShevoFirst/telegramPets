@@ -1,13 +1,11 @@
 package pro.sky.telegrampets.components;
-
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import pro.sky.telegrampets.impl.ReportServiceImpl;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.model.Report;
-import pro.sky.telegrampets.service.ReportService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,10 +17,10 @@ import java.util.regex.Pattern;
 @Component
 public class ButtonsVolunteer {
     private final ReportRepository reportRepository;
-    private final ReportService reportService;
+    private final ReportServiceImpl reportService;
 
 
-    public ButtonsVolunteer(ReportRepository reportRepository, ReportService reportService) {
+    public ButtonsVolunteer(ReportRepository reportRepository, ReportServiceImpl reportService) {
         this.reportRepository = reportRepository;
         this.reportService = reportService;
     }
