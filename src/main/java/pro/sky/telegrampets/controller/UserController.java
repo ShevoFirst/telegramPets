@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pro.sky.telegrampets.impl.UserServiceImpl;
 import pro.sky.telegrampets.model.User;
-import pro.sky.telegrampets.service.UserService;
 
 import javax.validation.constraints.Positive;
 
@@ -19,9 +19,9 @@ import javax.validation.constraints.Positive;
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 

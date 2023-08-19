@@ -30,8 +30,9 @@ public class UserServiceImpl {
     }
 
     //Обновить пользователя в бд
-    public void updateUser(User user) {
+    public User updateUser(User user) {
         userRepository.save(user);
+        return user;
     }
 
     //Получить юзера из бд

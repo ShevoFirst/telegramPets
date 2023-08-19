@@ -17,9 +17,11 @@ import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
 import org.telegram.telegrambots.meta.api.objects.File;
+import pro.sky.telegrampets.repository.VolunteerRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,18 +48,20 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private String namePhotoId;
     private ReportRepository reportRepository;
     int sendMessageReport; // сохраняем текстовую часть репорта для парсинга ID
+    VolunteerRepository volunteerRepository;
 
 
     private boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
     private boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer ,VolunteerRepository volunteerRepository) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
         this.getPetReportButton = getPetReportButton;
         this.userRepository = userRepository;
         this.buttonsVolunteer = buttonsVolunteer;
         this.reportRepository = reportRepository;
+        this.volunteerRepository = volunteerRepository;
     }
 
 
@@ -362,11 +366,11 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
      */
     public void callAVolunteer(Update update) {
-        List<Long> chatIdVolunteer = List.of(931733272L, 590317122L);
-        for (Long chat : chatIdVolunteer) {
+        List<Volunteer> volunteerList = volunteerRepository.findAll();
+        for (Volunteer volunteer: volunteerList) {
             String user = update.getCallbackQuery().getFrom().getUserName();
             SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(chat);
+            sendMessage.setChatId(volunteer.getChatId());
             sendMessage.setText("Пользователь: @" + user + " просит с ним связаться.");
             try {
                 execute(sendMessage);
