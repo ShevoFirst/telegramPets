@@ -6,9 +6,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -30,8 +28,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static org.apache.commons.io.FileUtils.getFile;
 
 /**
  * класс реагирущий на реакции бота через telegram api
@@ -112,9 +108,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
                 //блок “Прислать отчет о питомце”
                 case "Форма ежедневного отчета" -> {
-                    takeDailyReportFormPhoto(messageId, chatId, update);
+                    takeDailyReportFormPhoto(chatId);
                     photoCheckButton = true; // Устанавливаем флаг в true после нажатия кнопки
-                    reportCheckButton = true; // Устанавливаем флаг в true после нажатия кнопки
                 }
 
                 //Блок "Информация о приюте"
@@ -153,15 +148,15 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         if (photoCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал фото
             if (update.hasMessage()) {
                 PhotoSize photoSize = getPhoto(update);
-                File file = null;
-                file = downloadPhoto(photoSize.getFileId());
+                File file = downloadPhoto(photoSize.getFileId());
                 savePhotoToLocalFolder(file, update);
                 checkDailyReportPhoto(update);
                 photoCheckButton = false;
+                reportCheckButton = true;
             }
         }
         if (reportCheckButton) { // Проверяем флаг перед выполнением checkDailyReport(update) и проверяеем, что пользователь прислал текст отчета
-            if (update.getMessage().hasText()) {
+            if (update.hasMessage() && update.getMessage().hasText()) {
                 checkDailyReportMessage(update);
                 reportCheckButton = false;
             }
@@ -178,7 +173,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             executeSendMessage(new SendMessage(update.getMessage().getChatId().toString(), "не правильно набран номер повторите ещё раз"));
         }
 
-        if (update.getMessage().getText().equals("volonter")) {
+        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("volonter")) {
             sendButtonVolonter(update.getMessage().getChatId());
         }
 
@@ -249,7 +244,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //вызов кннопки о просьбе "Прислать фото питомца"
-    private void takeDailyReportFormPhoto(long messageId, long chatId, Update update) {
+    private void takeDailyReportFormPhoto(long chatId) {
         SendMessage sendMessage = getPetReportButton.sendMessageDailyReportPhoto(chatId);
         executeSendMessage(sendMessage);
     }
@@ -285,6 +280,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         String messageText = " Выберите приют который Вас интересует:";
         changeMessage(messageId, chatId, messageText, new Buttons().selectionAnimalButtons());
         isWaitNumber = false;
+        photoCheckButton = false;
+        reportCheckButton = false;
     }
 
     private void catSelection(int messageId, long chatId) {
@@ -399,7 +396,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private Path savePhotoToLocalFolder(File file, Update update) {
         PhotoSize photoSize = getPhoto(update);
         String filePath = file.getFilePath();
-        java.io.File downloadedFile = null;
+        java.io.File downloadedFile;
         try {
             downloadedFile = downloadFile(filePath);
         } catch (TelegramApiException e) {
@@ -407,7 +404,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
         // Генерируем уникальное имя файла с сохранением расширения
         namePhotoId = photoSize.getFileId() + "." + "jpg";
-        Path targetPath = Path.of("C:\\photoTG", namePhotoId);
+        Path targetPath = Path.of("src/main/resources/pictures", namePhotoId);
         getPetReportButton.saveUser(update, true);
         getPetReportButton.saveReportPhotoId(update, namePhotoId);
         try {
