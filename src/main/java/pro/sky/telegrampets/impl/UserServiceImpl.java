@@ -1,16 +1,23 @@
 package pro.sky.telegrampets.impl;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.repository.UserRepository;
+import pro.sky.telegrampets.service.UserService;
 
 import java.util.Optional;
 
 @Component
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Override
+    public SendMessage sendMessageToVolunteer(Long chatId) {
+        return null;
     }
 
     //Добавить нового пользователя в БД

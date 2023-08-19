@@ -355,7 +355,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             }
         }
     }
-
+//фыв
     /**
      * Получаеем объект File содержащий информацию о файле по его индефикатору.
      */

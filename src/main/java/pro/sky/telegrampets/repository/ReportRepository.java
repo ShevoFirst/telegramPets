@@ -13,5 +13,4 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     List<Report> findReportByCheckReportIsFalse();
 
     Report findReportById(Long id);
-
 }
