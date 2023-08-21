@@ -135,9 +135,4 @@ public class GetPetReportButton {
         report.setUser(userRepository.findUserByChatId(chatId));
         reportServiceImpl.reportAdd(report);
     }
-
-
-
 }
-
-

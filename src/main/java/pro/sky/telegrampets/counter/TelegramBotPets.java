@@ -140,12 +140,11 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
                 //блок Волонтера
                 case "Отчеты" -> {
-                    var string = reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
-                    sendImageFromFileId(string, String.valueOf(chatId));
+                    sendImageFromFileId(reviewListOfReports(update.getCallbackQuery().getMessage().getChatId()), String.valueOf(chatId));
                 }
                 case "ОТЧЕТ СДАН" -> {
                     reportSubmitted(update);
-                    reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
+                    sendImageFromFileId(reviewListOfReports(update.getCallbackQuery().getMessage().getChatId()), String.valueOf(chatId));
                 }
             }
 
@@ -184,36 +183,37 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     }
 
-    public void sendImageFromFileId(String string, String chatId) {
-        // Create send method
+    /**
+     * Отправляет фото из отчета
+     *
+     * @param photoIdByReport ID фото из отчета
+     */
+    public void sendImageFromFileId(String photoIdByReport, String chatId) {
         SendPhoto sendPhotoRequest = new SendPhoto();
-        // Set destination chat id
         sendPhotoRequest.setChatId(chatId);
-        // Set the photo url as a simple photo
-        sendPhotoRequest.setPhoto(new InputFile("AgACAgIAAxkBAAIGMmTg2VMdZqLPkz5ZG2IIZeXmHND_AAIPzDEb0UQAAUtYMYlzKbeYagEAAwIAA3gAAzAE"));
+        sendPhotoRequest.setPhoto(new InputFile(photoIdByReport));
         try {
-            // Execute the method
             execute(sendPhotoRequest);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
 
-    //просмотр отчетов питомцев
+    /**
+     * Отправляем текст непроверенного отчета, а так же получаем ID фото
+     *
+     * @return возвращает ID фото из отчета
+     */
     private String reviewListOfReports(long chatId) {
-
         sendMessageReport = buttonsVolunteer.parseReportNumber(buttonsVolunteer.reviewListOfReports(chatId).getText()); //Сохроняем ID отчета
-        System.out.println("sendMessageReport - " + sendMessageReport);
-        Report report = reportRepository.findReportById((long) sendMessageReport);
-        String reportId = report.getPhotoNameId();
-        System.out.println(reportId);
-
+        Report report = reportRepository.findReportById((long) sendMessageReport); //Получаем отчет по ID
+        String reportPhotoNameId = report.getPhotoNameId(); //Получаем Id фото из репорта
         try {
             execute(buttonsVolunteer.reviewListOfReports(chatId));
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
-        return reportId;
+        return reportPhotoNameId;
     }
 
 
@@ -414,10 +414,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
         // Генерируем уникальное имя файла с сохранением расширения
-        namePhotoId = photoSize.getFileId() + "." + "jpg";
+        namePhotoId = photoSize.getFileId();
 
         // src/main/resources/pictures
-        Path targetPath = Path.of("C:\\photoTG", namePhotoId);
+        Path targetPath = Path.of("src/main/resources/pictures", namePhotoId);
         getPetReportButton.saveUser(update, true);
         getPetReportButton.saveReportPhotoId(update, namePhotoId);
         try {

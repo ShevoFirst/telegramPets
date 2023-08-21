@@ -112,6 +112,4 @@ public class ButtonsVolunteer {
         }
         return -1; // В случае, если не удалось извлечь номер отчета
     }
-
-
 }
