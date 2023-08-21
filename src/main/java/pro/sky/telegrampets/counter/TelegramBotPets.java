@@ -17,6 +17,7 @@ import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.model.Report;
 import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
@@ -54,7 +55,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
     private boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
 
-    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer ,VolunteerRepository volunteerRepository) {
+    public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer, VolunteerRepository volunteerRepository) {
         this.telegramBotConfiguration = telegramBotConfiguration;
         this.buttons = buttons;
         this.getPetReportButton = getPetReportButton;
@@ -139,8 +140,8 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
                 //блок Волонтера
                 case "Отчеты" -> {
-                    reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
-                    sendImageFromFileId(String.valueOf(update.getCallbackQuery().getMessage().getChatId()));
+                    var string = reviewListOfReports(update.getCallbackQuery().getMessage().getChatId());
+                    sendImageFromFileId(string, String.valueOf(chatId));
                 }
                 case "ОТЧЕТ СДАН" -> {
                     reportSubmitted(update);
@@ -183,25 +184,13 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
     }
 
-    //просмотр отчетов питомцев
-    private void reviewListOfReports(long chatId) {
-        System.out.println(sendMessageReport);
-        sendMessageReport = buttonsVolunteer.parseReportNumber(buttonsVolunteer.reviewListOfReports(chatId).getText()); //Сохроняем ID отчета
-        try {
-            execute(buttonsVolunteer.reviewListOfReports(chatId));
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    public void sendImageFromFileId(String chatId) {
+    public void sendImageFromFileId(String string, String chatId) {
         // Create send method
         SendPhoto sendPhotoRequest = new SendPhoto();
         // Set destination chat id
         sendPhotoRequest.setChatId(chatId);
         // Set the photo url as a simple photo
-        sendPhotoRequest.setPhoto(new InputFile("AgACAgIAAxkBAAIFfGTgeJPke7lK6kcjJVQutOAjH4S6AAIPzDEb0UQAAUtYMYlzKbeYagEAAwIAA3gAAzAE"));
+        sendPhotoRequest.setPhoto(new InputFile("AgACAgIAAxkBAAIGMmTg2VMdZqLPkz5ZG2IIZeXmHND_AAIPzDEb0UQAAUtYMYlzKbeYagEAAwIAA3gAAzAE"));
         try {
             // Execute the method
             execute(sendPhotoRequest);
@@ -209,6 +198,24 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
+    //просмотр отчетов питомцев
+    private String reviewListOfReports(long chatId) {
+
+        sendMessageReport = buttonsVolunteer.parseReportNumber(buttonsVolunteer.reviewListOfReports(chatId).getText()); //Сохроняем ID отчета
+        System.out.println("sendMessageReport - " + sendMessageReport);
+        Report report = reportRepository.findReportById((long) sendMessageReport);
+        String reportId = report.getPhotoNameId();
+        System.out.println(reportId);
+
+        try {
+            execute(buttonsVolunteer.reviewListOfReports(chatId));
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+        return reportId;
+    }
+
 
     //Если отчет сдан
     private void reportSubmitted(Update update) {
@@ -367,7 +374,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      */
     public void callAVolunteer(Update update) {
         List<Volunteer> volunteerList = volunteerRepository.findAll();
-        for (Volunteer volunteer: volunteerList) {
+        for (Volunteer volunteer : volunteerList) {
             String user = update.getCallbackQuery().getFrom().getUserName();
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(volunteer.getChatId());
@@ -379,7 +386,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
             }
         }
     }
-//фыв
+
     /**
      * Получаеем объект File содержащий информацию о файле по его индефикатору.
      */
@@ -408,7 +415,9 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
         // Генерируем уникальное имя файла с сохранением расширения
         namePhotoId = photoSize.getFileId() + "." + "jpg";
-        Path targetPath = Path.of("src/main/resources/pictures", namePhotoId);
+
+        // src/main/resources/pictures
+        Path targetPath = Path.of("C:\\photoTG", namePhotoId);
         getPetReportButton.saveUser(update, true);
         getPetReportButton.saveReportPhotoId(update, namePhotoId);
         try {
