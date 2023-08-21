@@ -15,6 +15,10 @@ import java.util.concurrent.TimeUnit;
 public class NotificationTaskTimer {
     private final UserRepository userRepository;
     private final TelegramBotPets telegramBotPets;
+    private static final String REMINDER_MESSAGE = "Дорогой усыновитель, мы заметили, что ты заполняешь " +
+            "отчет не так подробно, как необходимо. Пожалуйста, подойди ответственнее" +
+            " к этому занятию. В противном случае волонтеры приюта будут обязаны " +
+            "самолично проверять условия содержания животного";
 
     public NotificationTaskTimer(UserRepository userRepository, TelegramBotPets telegramBotPets) {
         this.userRepository = userRepository;
@@ -24,17 +28,13 @@ public class NotificationTaskTimer {
     /**
      * Проверяет юзеров на отчеты, если отчета нет > 1 дня, то отправляет пользователю сообщение
      */
-    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.HOURS)
     public void task() {
         LocalDateTime oneDaysAgo = LocalDateTime.now().minusDays(1);
-        String message = " «Дорогой усыновитель, мы заметили, что ты заполняешь " +
-                "отчет не так подробно, как необходимо. Пожалуйста, подойди ответственнее" +
-                " к этому занятию. В противном случае волонтеры приюта будут обязаны " +
-                "самолично проверять условия содержания животного»";
         userRepository.findByDateTimeToTookBefore(oneDaysAgo)
                 .ifPresent(user -> {
                     if (user.getDateTimeToTook().isBefore(oneDaysAgo)) {
-                        telegramBotPets.changeMessage(user.getChatId(), message);
+                        telegramBotPets.changeMessage(user.getChatId(), REMINDER_MESSAGE);
                     }
                 });
     }

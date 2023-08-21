@@ -10,8 +10,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import pro.sky.telegrampets.impl.UserServiceImpl;
 import pro.sky.telegrampets.model.User;
-import pro.sky.telegrampets.service.UserService;
 
 
 import javax.ws.rs.core.MediaType;
@@ -32,7 +32,7 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
 
     @Test

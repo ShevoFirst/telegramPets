@@ -39,4 +39,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Report> reports = new ArrayList<>();
+
+    public User(long l, String slava, int i, int i1) {
+    }
 }

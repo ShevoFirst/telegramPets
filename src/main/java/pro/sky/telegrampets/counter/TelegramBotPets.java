@@ -416,7 +416,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         // Генерируем уникальное имя файла с сохранением расширения
         namePhotoId = photoSize.getFileId();
 
-        // src/main/resources/pictures
         Path targetPath = Path.of("src/main/resources/pictures", namePhotoId);
         getPetReportButton.saveUser(update, true);
         getPetReportButton.saveReportPhotoId(update, namePhotoId);
