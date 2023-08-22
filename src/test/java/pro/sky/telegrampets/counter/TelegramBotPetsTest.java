@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -291,6 +293,7 @@ class TelegramBotPetsTest {
         verify(message).hasText();
         verify(message).getText();
     }
+
     /**
      * Method under test: {@link TelegramBotPets#changeMessage(long, String)}
      */
@@ -298,6 +301,7 @@ class TelegramBotPetsTest {
     void testChangeMessage() {
         assertThrows(RuntimeException.class, () -> telegramBotPets.changeMessage(1L, ""));
     }
+
     @Test
     void testGetPhoto() {
         assertNull(telegramBotPets.getPhoto(new Update()));
@@ -333,6 +337,7 @@ class TelegramBotPetsTest {
                 editedMessage, channelPost, editedChannelPost, shippingQuery, preCheckoutQuery, poll, pollAnswer,
                 myChatMember, chatMember, new ChatJoinRequest())));
     }
+
     /**
      * Method under test: {@link TelegramBotPets#getPhoto(Update)}
      */
