@@ -18,6 +18,7 @@ import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.model.Report;
+import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
@@ -28,8 +29,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -145,6 +148,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "ОТЧЕТ СДАН" -> {
                     reportSubmitted(update);
                     sendImageFromFileId(reviewListOfReports(update.getCallbackQuery().getMessage().getChatId()), String.valueOf(chatId));
+                    Optional<User> user =  userRepository.getUserByChatId(chatId);
+                    User user1 = user.get();
+                    user1.setDateTimeToTook(LocalDateTime.now());
+                    userRepository.save(user1);
                 }
             }
 
