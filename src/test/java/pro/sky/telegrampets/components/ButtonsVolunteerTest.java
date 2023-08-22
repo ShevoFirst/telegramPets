@@ -86,8 +86,10 @@ public class ButtonsVolunteerTest {
         // Assert
         Assertions.assertNotNull(message);
         Assertions.assertEquals(chatId.toString(), message.getChatId());
-        String expectedText = "Отчет #1\n" +
-                "Текстовая часть отчета: Test report";
+        String expectedText = """
+                Отчет #1
+                Текстовая часть отчета: Test report
+                Фото отчета -\s""";
         Assertions.assertEquals(expectedText, message.getText());
         InlineKeyboardMarkup markupInline = (InlineKeyboardMarkup) message.getReplyMarkup();
         Assertions.assertNotNull(markupInline);

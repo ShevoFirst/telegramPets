@@ -188,7 +188,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      *
      * @param photoIdByReport ID фото из отчета
      */
-    public void sendImageFromFileId(String photoIdByReport, String chatId) {
+    private void sendImageFromFileId(String photoIdByReport, String chatId) {
         SendPhoto sendPhotoRequest = new SendPhoto();
         sendPhotoRequest.setChatId(chatId);
         sendPhotoRequest.setPhoto(new InputFile(photoIdByReport));
@@ -225,7 +225,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //Провека на нажатия /start
-    private boolean isStartCommand(Update update) {
+    protected boolean isStartCommand(Update update) {
         return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
@@ -372,7 +372,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * Реализация кнопки "Позвать волонтера"
      * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
      */
-    public void callAVolunteer(Update update) {
+    private void callAVolunteer(Update update) {
         List<Volunteer> volunteerList = volunteerRepository.findAll();
         for (Volunteer volunteer : volunteerList) {
             String user = update.getCallbackQuery().getFrom().getUserName();
@@ -441,20 +441,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
         }
         return null;
-    }
-
-    //   Здесь можно реализовать логику для расширения файла
-    private String getFileExtension(String filePath) {
-        int dotIndex = filePath.lastIndexOf('.');
-        if (dotIndex > 0 && dotIndex < filePath.length() - 1) {
-            return filePath.substring(dotIndex + 1);
-        }
-        return "jpg";
-    }
-
-    //   Здесь можно реализовать логику для генерации уникального имени файла
-    private String generateUniqueFileName() {
-        return "unique_filename";
     }
 
     private void aboutCatShelterSelection(int messageId, long chatId) {
