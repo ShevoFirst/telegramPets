@@ -39,4 +39,17 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Report> reports = new ArrayList<>();
+
+    public User(long id, String firstName, int chatId, String number) {
+        this.id = id;
+        this.firstName = firstName;
+        this.chatId = chatId;
+        this.number = number;
+    }
+
+    public User(String firstName, int chatId, String number) {
+        this.firstName = firstName;
+        this.chatId = chatId;
+        this.number = number;
+    }
 }
