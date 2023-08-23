@@ -18,6 +18,7 @@ import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
 import pro.sky.telegrampets.model.Report;
+import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
@@ -28,8 +29,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -145,6 +148,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "ОТЧЕТ СДАН" -> {
                     reportSubmitted(update);
                     sendImageFromFileId(reviewListOfReports(update.getCallbackQuery().getMessage().getChatId()), String.valueOf(chatId));
+                    Optional<User> user =  userRepository.getUserByChatId(chatId);
+                    User user1 = user.get();
+                    user1.setDateTimeToTook(LocalDateTime.now());
+                    userRepository.save(user1);
                 }
             }
 
@@ -188,7 +195,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      *
      * @param photoIdByReport ID фото из отчета
      */
-    public void sendImageFromFileId(String photoIdByReport, String chatId) {
+    private void sendImageFromFileId(String photoIdByReport, String chatId) {
         SendPhoto sendPhotoRequest = new SendPhoto();
         sendPhotoRequest.setChatId(chatId);
         sendPhotoRequest.setPhoto(new InputFile(photoIdByReport));
@@ -225,7 +232,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //Провека на нажатия /start
-    private boolean isStartCommand(Update update) {
+    protected boolean isStartCommand(Update update) {
         return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
@@ -372,7 +379,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * Реализация кнопки "Позвать волонтера"
      * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
      */
-    public void callAVolunteer(Update update) {
+    private void callAVolunteer(Update update) {
         List<Volunteer> volunteerList = volunteerRepository.findAll();
         for (Volunteer volunteer : volunteerList) {
             String user = update.getCallbackQuery().getFrom().getUserName();
@@ -440,20 +447,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
         }
         return null;
-    }
-
-    //   Здесь можно реализовать логику для расширения файла
-    private String getFileExtension(String filePath) {
-        int dotIndex = filePath.lastIndexOf('.');
-        if (dotIndex > 0 && dotIndex < filePath.length() - 1) {
-            return filePath.substring(dotIndex + 1);
-        }
-        return "jpg";
-    }
-
-    //   Здесь можно реализовать логику для генерации уникального имени файла
-    private String generateUniqueFileName() {
-        return "unique_filename";
     }
 
     private void aboutCatShelterSelection(int messageId, long chatId) {
