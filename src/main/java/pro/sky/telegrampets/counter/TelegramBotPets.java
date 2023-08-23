@@ -243,7 +243,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
 
     //проверка что пользователь прислал фото для отчета и сохранеяем в БД
-    private void checkDailyReportPhoto(Update update) {
+    void checkDailyReportPhoto(Update update) {
         long chatId = update.getMessage().getChatId();
         executeSendMessage(getPetReportButton.dailyReportCheckPhoto(chatId, update));
     }
@@ -322,7 +322,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         executeSendMessage(messageText);
     }
 
-    private void executeSendMessage(SendMessage sendMessage) {
+    public void executeSendMessage(SendMessage sendMessage) {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
