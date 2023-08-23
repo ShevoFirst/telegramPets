@@ -4,20 +4,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import liquibase.pro.packaged.M;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Audio;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -59,6 +60,7 @@ import org.telegram.telegrambots.meta.api.objects.payments.SuccessfulPayment;
 import org.telegram.telegrambots.meta.api.objects.polls.Poll;
 import org.telegram.telegrambots.meta.api.objects.polls.PollAnswer;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatEnded;
 import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatParticipantsInvited;
@@ -69,6 +71,7 @@ import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
 import pro.sky.telegrampets.config.TelegramBotConfiguration;
+import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
 import pro.sky.telegrampets.repository.VolunteerRepository;
@@ -387,5 +390,98 @@ class TelegramBotPetsTest {
         verify(message).getPhoto();
     }
 
+    @Test
+    void testKittenArrangementSelection() {
+        // Заглушки
+        TelegramBotConfiguration config = Mockito.mock(TelegramBotConfiguration.class);
+        ReportRepository reportRepository = Mockito.mock(ReportRepository.class);
+        Buttons buttons = Mockito.mock(Buttons.class);
+        GetPetReportButton getPetReportButton = Mockito.mock(GetPetReportButton.class);
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        ButtonsVolunteer buttonsVolunteer = Mockito.mock(ButtonsVolunteer.class);
+        VolunteerRepository volunteerRepository = Mockito.mock(VolunteerRepository.class);
+
+        TelegramBotPets botPets = new TelegramBotPets(config, reportRepository, buttons, getPetReportButton, userRepository, buttonsVolunteer, volunteerRepository);
+
+        // Моки
+        TelegramBotPets mockBotPets = Mockito.spy(botPets);
+        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
+        toStartButton.setCallbackData("В начало");
+        InlineKeyboardMarkup expectedKeyboardMarkup = new InlineKeyboardMarkup(List.of(List.of(toStartButton)));
+        Message message = Mockito.mock(Message.class);
+        var chatId = message.getChatId();
+        var messageId = message.getMessageId();
+
+
+        mockBotPets.KittenArrangementSelection(messageId, chatId);
+
+        Mockito.verify(botPets).changeMessage(messageId, chatId, "1. Место для сна, такое как кошачий домик или мягкая подушка.\n" +
+                "2. Миски для еды и воды.\n" +
+                "3. Корм для котенка, соответствующий его возрасту и размеру.\n" +
+                "4. Игрушки для игр и развлечения.\n" +
+                "5. Когтеточка или когтетренировочный материал.\n" +
+                "6. Подстилка или лоток для учения котенка делать свои нужды на определенном месте.\n" +
+                "7. Шлейка и поводок для прогулок и тренировок.\n" +
+                "8. Щетка для груминга и ухода за шерстью.\n" +
+                "9. Дезинфицирующее средство для очистки мест, где котенок делает свои нужды.\n" +
+                "10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости.", expectedKeyboardMarkup);
+    }
+
+    @Test
+    void testCallAVolunteer() {
+
+        // Заглушки
+        TelegramBotConfiguration config = Mockito.mock(TelegramBotConfiguration.class);
+        ReportRepository reportRepository = Mockito.mock(ReportRepository.class);
+        Buttons buttons = Mockito.mock(Buttons.class);
+        GetPetReportButton getPetReportButton = Mockito.mock(GetPetReportButton.class);
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        ButtonsVolunteer buttonsVolunteer = Mockito.mock(ButtonsVolunteer.class);
+        VolunteerRepository volunteerRepository = Mockito.mock(VolunteerRepository.class);
+
+        TelegramBotPets botPets = new TelegramBotPets(config, reportRepository, buttons, getPetReportButton, userRepository, buttonsVolunteer, volunteerRepository);
+
+        // Создание моков для тестирования
+        Update mockUpdate = mock(Update.class);
+        CallbackQuery mockCallbackQuery = mock(CallbackQuery.class);
+        User mockUser = mock(User.class);
+        Chat mockChat = mock(Chat.class);
+        when(mockUpdate.getCallbackQuery()).thenReturn(mockCallbackQuery);
+        when(mockCallbackQuery.getFrom()).thenReturn(mockUser);
+        when(mockCallbackQuery.getMessage()).thenReturn(null); // В данном случае не используется
+        when(mockCallbackQuery.getMessage()).thenReturn(mockChat.getPinnedMessage());
+        when(mockUser.getUserName()).thenReturn("test_user");
+
+        // Создание списка моков волонтеров
+        List<Volunteer> mockVolunteerList = new ArrayList<>();
+        Volunteer mockVolunteer1 = mock(Volunteer.class);
+        Volunteer mockVolunteer2 = mock(Volunteer.class);
+        when(mockVolunteer1.getChatId()).thenReturn(Long.valueOf("chatId1"));
+        when(mockVolunteer2.getChatId()).thenReturn(Long.valueOf("chatId2"));
+        mockVolunteerList.add(mockVolunteer1);
+        mockVolunteerList.add(mockVolunteer2);
+
+        // Подготовка моков репозитория и бота
+        when(volunteerRepository.findAll()).thenReturn(mockVolunteerList);
+
+
+        // Вызов метода для тестирования
+        botPets.callAVolunteer(mockUpdate);
+
+//        // Проверка, что был вызван метод execute() нужное количество раз
+//        verify(mockSender, times(2)).execute(any(SendMessage.class));
+
+        // Проверка, что был вызван метод findAll() у репозитория
+        verify(volunteerRepository).findAll();
+
+        // Проверка, что был получен chatId у волонтеров
+        verify(mockVolunteer1).getChatId();
+        verify(mockVolunteer2).getChatId();
+
+//        // Проверка, что текст отправленного сообщения соответствует ожидаемому
+//        verify(mockSender).execute(argThat(sendMessage ->
+//                sendMessage.getText().contains("Пользователь: @test_user просит с ним связаться.")));
+    }
 }
+
 

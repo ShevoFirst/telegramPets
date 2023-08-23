@@ -1,5 +1,6 @@
 package pro.sky.telegrampets.counter;
 
+import liquibase.pro.packaged.M;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -7,9 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -22,7 +21,6 @@ import pro.sky.telegrampets.model.User;
 import pro.sky.telegrampets.model.Volunteer;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.repository.UserRepository;
-import org.telegram.telegrambots.meta.api.objects.File;
 import pro.sky.telegrampets.repository.VolunteerRepository;
 
 import java.io.IOException;
@@ -148,10 +146,12 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 case "ОТЧЕТ СДАН" -> {
                     reportSubmitted(update);
                     sendImageFromFileId(reviewListOfReports(update.getCallbackQuery().getMessage().getChatId()), String.valueOf(chatId));
-                    Optional<User> user =  userRepository.getUserByChatId(chatId);
-                    User user1 = user.get();
-                    user1.setDateTimeToTook(LocalDateTime.now());
-                    userRepository.save(user1);
+
+                }
+                case "ОТЧЕТ НЕ СДАН" -> {
+                    reportNotSubmitted(update);
+                    sendImageFromFileId(reviewListOfReports(update.getCallbackQuery().getMessage().getChatId()), String.valueOf(chatId));
+
                 }
             }
 
@@ -227,8 +227,16 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     //Если отчет сдан
     private void reportSubmitted(Update update) {
         changeMessage(update.getCallbackQuery().getMessage().getChatId(), "Отчет сдан");
-        System.out.println(sendMessageReport);
         buttonsVolunteer.reportSubmitted((long) sendMessageReport);
+    }
+
+    //Если отчет не сдан
+    private void reportNotSubmitted(Update update) {
+        changeMessage(update.getCallbackQuery().getMessage().getChatId(), "Отчет не сдан");
+        var reportById = reportRepository.findReportById((long) sendMessageReport);
+        changeMessage(reportById.getUser().getChatId(), "Твой отчет c текстом " + reportById.getGeneralWellBeing()
+                + " не прошел проверку.");
+        buttonsVolunteer.reportNotSubmitted((long) sendMessageReport);
     }
 
     //Провека на нажатия /start
@@ -340,7 +348,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     /**
      * метод для создания/изменения сообщения
      */
-    private void changeMessage(int messageId, long chatIdInButton, String messageText, InlineKeyboardMarkup keyboardMarkup) {
+    void changeMessage(int messageId, long chatIdInButton, String messageText, InlineKeyboardMarkup keyboardMarkup) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(String.valueOf(chatIdInButton));
         editMessageText.setText(messageText);
@@ -379,7 +387,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      * Реализация кнопки "Позвать волонтера"
      * в List chatIdVolunteer добавляются chatId волонтеров, котормым рассылаются сообщения
      */
-    private void callAVolunteer(Update update) {
+    void callAVolunteer(Update update) {
         List<Volunteer> volunteerList = volunteerRepository.findAll();
         for (Volunteer volunteer : volunteerList) {
             String user = update.getCallbackQuery().getFrom().getUserName();
@@ -675,7 +683,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void KittenArrangementSelection(int messageId, long chatId) {
+    void KittenArrangementSelection(int messageId, long chatId) {
         String messageText = """
                 1. Место для сна, такое как кошачий домик или мягкая подушка.
                 2. Миски для еды и воды.

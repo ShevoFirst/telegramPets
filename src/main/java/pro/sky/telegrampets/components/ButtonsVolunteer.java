@@ -73,7 +73,7 @@ public class ButtonsVolunteer {
                 InlineKeyboardButton button1 = new InlineKeyboardButton("Отчет сдан");
                 InlineKeyboardButton button2 = new InlineKeyboardButton("Отчет не сдан");
                 button1.setCallbackData("ОТЧЕТ СДАН");
-                button2.setCallbackData("Флаг кнопки 2 для отчета");
+                button2.setCallbackData("ОТЧЕТ НЕ СДАН");
                 rowsInLine.add(List.of(button1, button2));
 
                 keyboardMarkup.setKeyboard(rowsInLine);
@@ -92,6 +92,14 @@ public class ButtonsVolunteer {
         Report report = reportRepository.findReportById(idReport);
         report.setCheckReport(true);
         reportServiceImpl.updateReport(report);
+    }
+
+    /**
+     * Обновляем БД, удаляем отчет т.к. он не был сдан
+     */
+    public Report reportNotSubmitted(Long idReport) {
+        reportRepository.deleteReportById(idReport);
+        return reportRepository.findReportById(idReport);
     }
 
 
