@@ -488,7 +488,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
                 Мы работаем с 7:00 и до 23:00 ежедневно.
                 В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта
                 """;
-        System.out.println(77);
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));

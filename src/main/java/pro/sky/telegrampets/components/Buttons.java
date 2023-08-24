@@ -122,7 +122,7 @@ public class Buttons {
             aboutShelterButton.setText("Информация о приюте для собак");
             aboutShelterButton.setCallbackData("Информация о приюте для собак");
             shelterWorkingHoursButton.setText("Расписание приюта для собак");
-            shelterWorkingHoursButton.setCallbackData("Расписание приюта для собак");
+            shelterWorkingHoursButton.setCallbackData("Расписание работы приюта для собак");
             shelterSecurityContactButton.setText("Контакты охраны приюта для собак");
             shelterSecurityContactButton.setCallbackData("Контакты охраны приюта для собак");
         }
