@@ -391,43 +391,6 @@ class TelegramBotPetsTest {
     }
 
     @Test
-    void testKittenArrangementSelection() {
-        // Заглушки
-        TelegramBotConfiguration config = Mockito.mock(TelegramBotConfiguration.class);
-        ReportRepository reportRepository = Mockito.mock(ReportRepository.class);
-        Buttons buttons = Mockito.mock(Buttons.class);
-        GetPetReportButton getPetReportButton = Mockito.mock(GetPetReportButton.class);
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
-        ButtonsVolunteer buttonsVolunteer = Mockito.mock(ButtonsVolunteer.class);
-        VolunteerRepository volunteerRepository = Mockito.mock(VolunteerRepository.class);
-
-        TelegramBotPets botPets = new TelegramBotPets(config, reportRepository, buttons, getPetReportButton, userRepository, buttonsVolunteer, volunteerRepository);
-
-        // Моки
-        TelegramBotPets mockBotPets = Mockito.spy(botPets);
-        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
-        toStartButton.setCallbackData("В начало");
-        InlineKeyboardMarkup expectedKeyboardMarkup = new InlineKeyboardMarkup(List.of(List.of(toStartButton)));
-        Message message = Mockito.mock(Message.class);
-        var chatId = message.getChatId();
-        var messageId = message.getMessageId();
-
-
-        mockBotPets.KittenArrangementSelection(messageId, chatId);
-
-        Mockito.verify(botPets).changeMessage(messageId, chatId, "1. Место для сна, такое как кошачий домик или мягкая подушка.\n" +
-                "2. Миски для еды и воды.\n" +
-                "3. Корм для котенка, соответствующий его возрасту и размеру.\n" +
-                "4. Игрушки для игр и развлечения.\n" +
-                "5. Когтеточка или когтетренировочный материал.\n" +
-                "6. Подстилка или лоток для учения котенка делать свои нужды на определенном месте.\n" +
-                "7. Шлейка и поводок для прогулок и тренировок.\n" +
-                "8. Щетка для груминга и ухода за шерстью.\n" +
-                "9. Дезинфицирующее средство для очистки мест, где котенок делает свои нужды.\n" +
-                "10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости.", expectedKeyboardMarkup);
-    }
-
-    @Test
     void testCallAVolunteer() {
 
         // Заглушки

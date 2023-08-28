@@ -119,7 +119,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
             InlineKeyboardButton aboutShelterButton = new InlineKeyboardButton("Информация о приюте для собак");
             aboutShelterButton.setCallbackData("Информация о приюте для собак");
             InlineKeyboardButton shelterWorkingHoursButton = new InlineKeyboardButton("Расписание приюта для собак");
-            shelterWorkingHoursButton.setCallbackData("Расписание приюта для собак");
+            shelterWorkingHoursButton.setCallbackData("Расписание работы приюта для собак");
             InlineKeyboardButton shelterSecurityContactButton = new InlineKeyboardButton("Контакты охраны приюта для собак");
             shelterSecurityContactButton.setCallbackData("Контакты охраны приюта для собак");
             InlineKeyboardButton safetyRecommendationsButton = new InlineKeyboardButton("Общие правила поведения");

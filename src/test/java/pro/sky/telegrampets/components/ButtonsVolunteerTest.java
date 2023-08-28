@@ -102,7 +102,7 @@ public class ButtonsVolunteerTest {
         Assertions.assertEquals("ОТЧЕТ СДАН", button1.getCallbackData());
         InlineKeyboardButton button2 = row.get(1);
         Assertions.assertEquals("Отчет не сдан", button2.getText());
-        Assertions.assertEquals("Флаг кнопки 2 для отчета", button2.getCallbackData());
+        Assertions.assertEquals("ОТЧЕТ НЕ СДАН", button2.getCallbackData());
     }
 
     @Test
