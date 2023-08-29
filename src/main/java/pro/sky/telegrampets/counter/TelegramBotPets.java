@@ -504,7 +504,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void catShelterSecurityContactSelection(int messageId, long chatId) {
+    protected void catShelterSecurityContactSelection(int messageId, long chatId) {
         String messageText = """
                 Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
                 Телефон для связи с постом охраны: 8-800-888-88-88.
@@ -515,7 +515,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void dogShelterSecurityContactSelection(int messageId, long chatId) {
+    protected void dogShelterSecurityContactSelection(int messageId, long chatId) {
         String messageText = """
                 Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
                 Телефон для связи с постом охраны: 8-777-666-55-44.
@@ -526,7 +526,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void safetyRecommendationsSelection(int messageId, long chatId) {
+    protected void safetyRecommendationsSelection(int messageId, long chatId) {
         String messageText = """
                 1. Уважайте животных: Обращайтесь с животными с добротой и состраданием. Используйте спокойный и мягкий тон голоса, чтобы не пугать их.
                 2. Следуйте инструкциям персонала: Следуйте указаниям персонала приюта. Они знают особенности каждого животного и могут дать советы о безопасности и правильном обращении с ними.
@@ -542,7 +542,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void arrangementAdultSelectionDog(int messageId, long chatId) {
+    protected void arrangementAdultSelectionDog(int messageId, long chatId) {
         String messageText = """
                 1. Место для сна, такое как кровать или мягкий матрас.
                 2. Миски для еды и воды, предпочтительно из нержавеющей стали или керамики.
@@ -560,7 +560,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void recordingContactsSelection(int messageId, long chatId) {
+    protected void recordingContactsSelection(int messageId, long chatId) {
         String messageText = "Введите свой номер телефона в формате +71112223344";
         isWaitNumber = true;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
@@ -568,7 +568,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void listReasonsSelection(int messageId, long chatId) {
+    protected void listReasonsSelection(int messageId, long chatId) {
         String messageText = """
                 1. Несоответствие потенциального владельца требованиям приюта по уходу за животным.
                 2. Недостаточный опыт и знания в уходе за собакой.
@@ -586,7 +586,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void arrangementLimitedSelection(int messageId, long chatId) {
+    protected void arrangementLimitedSelection(int messageId, long chatId) {
         String messageText = """
                 1. Уютное место для сна, такое как кровать или мягкий матрас.
                 2. Миски для еды и воды, предпочтительно из нержавеющей стали или керамики.
@@ -602,7 +602,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void arrangementAdultSelectionCat(int messageId, long chatId) {
+    protected void arrangementAdultSelectionCat(int messageId, long chatId) {
         String messageText = """
                 1. Место для сна, такое как кровать или мягкий матрас.
                 2. Миски для еды и воды, предпочтительно из нержавеющей стали или керамики.
@@ -618,7 +618,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void transportationSelection(int messageId, long chatId) {
+    protected void transportationSelection(int messageId, long chatId) {
         String messageText = """
                 1. Клетка или переноска для транспортировки животного, соответствующая его размеру и весу.
                 2. Постельное белье для клетки или переноски.
@@ -629,7 +629,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void documentsSelection(int messageId, long chatId) {
+    protected void documentsSelection(int messageId, long chatId) {
         String messageText = """
                 1. Заявление на усыновление животного.
                 2. Документ, удостоверяющий личность (паспорт или другой документ, содержащий фотографию и подпись).
@@ -644,7 +644,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void datingRulesSelection(int messageId, long chatId) {
+    protected void datingRulesSelection(int messageId, long chatId) {
         String messageText = """
                 1. Изучите информацию о животном: возраст, порода, характер, здоровье и особенности ухода.
 
@@ -666,7 +666,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void puppyArrangementSelection(int messageId, long chatId) {
+    protected void puppyArrangementSelection(int messageId, long chatId) {
         String messageText = """
                 1. Место для сна, такое как кровать или корзина.
                 2. Миски для еды и воды.

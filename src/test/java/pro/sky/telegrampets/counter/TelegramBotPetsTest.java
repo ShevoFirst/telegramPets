@@ -435,7 +435,6 @@ class TelegramBotPetsTest {
 
     @Test
     public void testCatShelterMessageTextFormat() {
-
         // Вызываем метод catShelterWorkingHoursSelection
         telegramBot.catShelterWorkingHoursSelection(123, 456L);
 
@@ -467,7 +466,7 @@ class TelegramBotPetsTest {
     @Test
     public void testDogShelterMessageTextFormat() {
 
-        // Вызываем метод catShelterWorkingHoursSelection
+        // Вызываем метод dogShelterWorkingHoursSelection
         telegramBot.dogShelterWorkingHoursSelection(123, 456L);
 
         // Проверяем, что текст сообщения соответствует ожидаемому формату
@@ -480,6 +479,474 @@ class TelegramBotPetsTest {
                 any(InlineKeyboardMarkup.class)
         );
     }
+
+    @Test
+    public void testCatShelterSecurityContactSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.catShelterSecurityContactSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testCatShelterSecurityContactSelectionMessageTextFormat() {
+        // Вызываем метод dogShelterWorkingHoursSelection
+        telegramBot.catShelterSecurityContactSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим
+                Телефон для связи с постом охраны: 8-800-888-88-88.
+                Просьба звонить заранее, в часы работы приюта.
+                """),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testDogShelterSecurityContactSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.dogShelterSecurityContactSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testDogShelterSecurityContactSelectionMessageTextFormat() {
+        // Вызываем метод dogShelterWorkingHoursSelection
+        telegramBot.dogShelterSecurityContactSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("Уважаемые посетители нашего прекрасного приюта, убедительная просьба перед посещением связаться с сотрудниками охраны,так как у нас установлен пропускной режим\n" +
+                        "Телефон для связи с постом охраны: 8-777-666-55-44.\n" +
+                        "Просьба звонить заранее, в часы работы приюта."),
+
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testSafetyRecommendationsSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.safetyRecommendationsSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testSafetyRecommendationsSelectionMessageTextFormat() {
+        // Вызываем метод safetyRecommendationsSelection
+        telegramBot.safetyRecommendationsSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Уважайте животных: Обращайтесь с животными с добротой и состраданием. Используйте спокойный и мягкий тон голоса, чтобы не пугать их.
+                2. Следуйте инструкциям персонала: Следуйте указаниям персонала приюта. Они знают особенности каждого животного и могут дать советы о безопасности и правильном обращении с ними.
+                3. Не кормите животных без разрешения: Не предлагайте пищу животным без разрешения персонала. У них может быть специальная диета или определенные проблемы со здоровьем, и неправильная пища может причинить вред.
+                4. Будьте аккуратны и осторожны: Поведение в приюте должно быть аккуратным и осторожным, чтобы не причинить вред животным или себе. Не шумите, не пугайте их и не оставляйте предметы, которые могут быть опасными.
+                5. Не проникайте в запретные зоны приюта: Уважайте указанные запретные зоны, куда доступ запрещен. Некоторые животные могут быть в карантине или требовать специального ухода, поэтому важно соблюдать инструкции персонала.
+                6. Поддерживайте чистоту: Следите за чистотой и гигиеной в приюте. Выбрасывайте мусор в специальные контейнеры, после общения с животными вымывайте руки.
+                7. Предоставляйте информацию: Если замечаете какие-либо изменения в поведении или состоянии животных, сообщите об этом персоналу приюта. Ваши наблюдения могут быть важными для здоровья и ухода за животными.
+                """),
+
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testArrangementAdultSelectionDog() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.arrangementAdultSelectionDog(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testArrangementAdultSelectionDogMessageTextFormat() {
+        // Вызываем метод arrangementAdultSelectionDog
+        telegramBot.arrangementAdultSelectionDog(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Место для сна, такое как кровать или мягкий матрас.
+                2. Миски для еды и воды, предпочтительно из нержавеющей стали или керамики.
+                3. Корм для взрослой собаки, соответствующий ее возрасту, размеру и потребностям.
+                4. Игрушки для игр и развлечения, включая интерактивные игры и игрушки для охоты.
+                5. Когтеточка или когтетренировочный материал, чтобы предотвратить повреждение мебели.
+                6. Лоток для учения собаки делать свои нужды на определенном месте, если она живет в квартире.
+                7. Шлейка и поводок для прогулок и тренировок, если собака привыкла к ним.
+                8. Щетка для груминга и ухода за шерстью, чтобы предотвратить образование комков и перхоти.
+                9. Дезинфицирующее средство для очистки мест, где собака делает свои нужды, а также для очистки поверхностей и предметов, которые собака может затронуть.
+                """),
+
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testRecordingContactsSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.recordingContactsSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testRecordingContactsSelectionTextFormat() {
+        // Вызываем метод arrangementAdultSelectionDog
+        telegramBot.recordingContactsSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("Введите свой номер телефона в формате +71112223344"),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testListReasonsSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.listReasonsSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testListReasonsSelectionTextFormat() {
+        // Вызываем метод arrangementAdultSelectionDog
+        telegramBot.listReasonsSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Несоответствие потенциального владельца требованиям приюта по уходу за животным.
+                2. Недостаточный опыт и знания в уходе за собакой.
+                3. Невозможность предоставить достаточное пространство для жизни собаки.
+                4. Неспособность обеспечить ежедневные прогулки и физическую активность для собаки.
+                5. Несоответствие возраста, размера и характера собаки потенциальному владельцу.
+                6. Наличие других животных в доме, которые могут не совместимы с собакой.
+                7. Непредоставление всех необходимых документов и разрешений для содержания собаки.
+                8. Недостаточный доход или финансовые возможности для обеспечения здоровья и ухода за собакой.
+                9. История жестокого обращения с животными или нарушений законодательства в отношении животных.
+                10. Негативный результат при проверке на предмет аллергии к собакам у потенциального владельца или членов его семьи.
+                """),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testArrangementLimitedSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.arrangementLimitedSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testArrangementLimitedSelectionTextFormat() {
+        // Вызываем метод arrangementAdultSelectionDog
+        telegramBot.arrangementLimitedSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Уютное место для сна, такое как кровать или мягкий матрас.
+                2. Миски для еды и воды, предпочтительно из нержавеющей стали или керамики.
+                3. Корм для взрослого питомца, соответствующий его возрасту, размеру и потребностям.
+                4. Игрушки для игр и развлечения, включая интерактивные игры и игрушки для охоты.
+                6. Лоток для кошек или лоток для учения собаки делать свои нужды на определенном месте, если она живет в квартире.
+                7. Шлейка и поводок для прогулок и тренировок, если питомец привык к ним.
+                8. Щетка для груминга и ухода за шерстью, чтобы предотвратить образование комков и перхоти.
+                9. Дезинфицирующее средство для очистки мест, где питомец делает свои нужды, а также для очистки поверхностей и предметов, которые они могут затронуть.
+                """),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testArrangementAdultSelectionCat() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.arrangementAdultSelectionCat(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testArrangementAdultSelectionCatTextFormat() {
+        // Вызываем метод arrangementAdultSelectionCat
+        telegramBot.arrangementAdultSelectionCat(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Место для сна, такое как кровать или мягкий матрас.
+                2. Миски для еды и воды, предпочтительно из нержавеющей стали или керамики.
+                3. Корм для взрослого кота, соответствующий его возрасту, размеру и потребностям.
+                4. Игрушки для игр и развлечения, включая интерактивные игры и игрушки для охоты.
+                5. Когтеточка или когтетренировочный материал, чтобы предотвратить повреждение мебели.
+                6. Лоток для учения кота делать свои нужды на определенном месте, предпочтительно с запахоней или без запаха.
+                7. Шлейка и поводок для прогулок и тренировок, если кот привык к ним.
+                8. Щетка для груминга и ухода за шерстью, чтобы предотвратить образование комков и перхоти.
+                """),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testTransportationSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.transportationSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testTransportationSelectionTextFormat() {
+        // Вызываем метод transportationSelection
+        telegramBot.transportationSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Клетка или переноска для транспортировки животного, соответствующая его размеру и весу.
+                2. Постельное белье для клетки или переноски.
+                3. Еда и вода на время транспортировки.
+                4. Игрушки или другие предметы, которые помогут животному чувствовать себя комфортно во время перевозки."""),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testDocumentsSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.documentsSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testDocumentsSelectionTextFormat() {
+        // Вызываем метод documentsSelection
+        telegramBot.documentsSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Заявление на усыновление животного.
+                2. Документ, удостоверяющий личность (паспорт или другой документ, содержащий фотографию и подпись).
+                3. Документ, подтверждающий наличие разрешения на содержание животного в доме или квартире (в зависимости от законодательства страны).
+                4. Документы, подтверждающие финансовую способность обеспечить животное достойными условиями жизни (например, выписки из банковских счетов или другие документы, подтверждающие стабильный доход).
+                5. Документы, подтверждающие наличие опыта в уходе за животными (если это требуется при усыновлении конкретной породы).
+                6. Документы, подтверждающие прохождение курсов обучения по уходу за животными (если это требуется при усыновлении конкретной породы).
+                7. Документы, подтверждающие наличие места для проживания животного (например, договор аренды жилья или собственности).
+                """),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testDatingRulesSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.datingRulesSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testDatingRulesSelectionTextFormat() {
+        // Вызываем метод datingRulesSelection
+        telegramBot.datingRulesSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Изучите информацию о животном: возраст, порода, характер, здоровье и особенности ухода.
+
+                2. Проведите время с животным в приюте, чтобы понять, как он ведет себя в различных ситуациях.
+
+                3. Обсудите с работниками приюта все вопросы, связанные с уходом за животным, его здоровьем и поведением.
+
+                4. Убедитесь, что вы готовы к финансовым затратам на уход за животным и можете обеспечить ему достойные условия жизни.
+
+                5. Подготовьте дом к прибытию нового члена семьи: оборудуйте место для сна и отдыха, купите необходимые принадлежности и игрушки.
+
+                6. Соблюдайте все требования приюта по уходу за животным после его забора.\s
+
+                7. Не забывайте о регулярных посещениях ветеринара и своевременном проведении всех необходимых процедур по уходу за животным.\s
+
+                8. Относитесь к животному с любовью и заботой, чтобы он чувствовал себя дома и был счастлив."""),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testPuppyArrangementSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.puppyArrangementSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testPuppyArrangementSelectionTextFormat() {
+        // Вызываем метод puppyArrangementSelection
+        telegramBot.puppyArrangementSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Место для сна, такое как кровать или корзина.
+                2. Миски для еды и воды.
+                3. Корм для щенка, соответствующий его возрасту и размеру.
+                4. Игрушки для жевания и развлечения.
+                5. Подстилка или пеленки для учения щенка делать свои нужды на определенном месте.
+                6. Шлейка и поводок для прогулок и тренировок.
+                7. Туалет для щенка, если вы планируете держать его внутри дома.
+                8. Щетка для груминга и ухода за шерстью.
+                9. Дезинфицирующее средство для очистки мест, где щенок делает свои нужды.
+                10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости."""),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testKittenArrangementSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.KittenArrangementSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testKittenArrangementSelectionTextFormat() {
+        // Вызываем метод KittenArrangementSelection
+        telegramBot.KittenArrangementSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                1. Место для сна, такое как кошачий домик или мягкая подушка.
+                2. Миски для еды и воды.
+                3. Корм для котенка, соответствующий его возрасту и размеру.
+                4. Игрушки для игр и развлечения.
+                5. Когтеточка или когтетренировочный материал.
+                6. Подстилка или лоток для учения котенка делать свои нужды на определенном месте.
+                7. Шлейка и поводок для прогулок и тренировок.
+                8. Щетка для груминга и ухода за шерстью.
+                9. Дезинфицирующее средство для очистки мест, где котенок делает свои нужды.
+                10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости."""),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
 }
 
 
