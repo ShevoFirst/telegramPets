@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,29 +24,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Audio;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.ChatJoinRequest;
-import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
-import org.telegram.telegrambots.meta.api.objects.ChatShared;
-import org.telegram.telegrambots.meta.api.objects.Contact;
-import org.telegram.telegrambots.meta.api.objects.Dice;
-import org.telegram.telegrambots.meta.api.objects.Document;
-import org.telegram.telegrambots.meta.api.objects.Location;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageAutoDeleteTimerChanged;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.ProximityAlertTriggered;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.UserShared;
-import org.telegram.telegrambots.meta.api.objects.Venue;
-import org.telegram.telegrambots.meta.api.objects.Video;
-import org.telegram.telegrambots.meta.api.objects.VideoNote;
-import org.telegram.telegrambots.meta.api.objects.Voice;
-import org.telegram.telegrambots.meta.api.objects.WriteAccessAllowed;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicClosed;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicCreated;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicEdited;
@@ -947,6 +927,89 @@ class TelegramBotPetsTest {
         );
     }
 
+    @Test
+    public void testSendImageFromFileId() throws TelegramApiException {
+        doNothing().when(telegramBot).execute(ArgumentMatchers.any(SendPhoto.class));
+        telegramBot.sendImageFromFileId("photo123", "chat456");
+
+        // Захватываем аргументы, переданные в метод execute
+        ArgumentCaptor<SendPhoto> sendPhotoCaptor = ArgumentCaptor.forClass(SendPhoto.class);
+        verify(telegramBot).execute(sendPhotoCaptor.capture());
+
+        // Проверяем, что переданные аргументы соответствуют ожидаемым значениям
+        SendPhoto capturedSendPhoto = sendPhotoCaptor.getValue();
+        assertEquals("chat456", capturedSendPhoto.getChatId());
+        assertEquals("photo123", capturedSendPhoto.getPhoto().getMediaName());
+    }
+
+    @Test
+    public void testAboutDogShelterSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.aboutDogShelterSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testAboutDogShelterSelectionTextFormat() {
+        String messageText = """
+                Наш приют для собак - это удивительное место, где каждый пушистый друг может найти свой дом и получить заботу, любовь и безопасность, которые он заслуживает.
+                Открыв свои двери в 2023 году, наш приют уже успел стать оазисом для бездомных собак и их временным приютом.
+                У нас работает дружелюбный и преданный персонал, состоящий из опытных ветеринаров, тренеров и волонтеров, 
+                которые уделяют особое внимание заботе о наших собаках. Мы предлагаем им полноценное питание, погружение в игры и развлечения, а также регулярные медицинские осмотры и ветеринарную помощь.
+                Мы находимся по адресу: г.Москва, ул. Пушкина, стр.10 (вход со стороны магазина "Атлантида").
+                """;
+        // Вызываем метод aboutDogShelterSelection
+        telegramBot.aboutDogShelterSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches(messageText),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testAboutCatShelterSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.aboutCatShelterSelection(123, 456L);
+
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
+
+    @Test
+    public void testAboutCatShelterSelectionTextFormat() {
+        // Вызываем метод aboutCatShelterSelection
+        telegramBot.aboutCatShelterSelection(123, 456L);
+
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("""
+                Мы стремимся обеспечить каждую кошку в нашем приюте ласковым убежищем, где они могут чувствовать себя в безопасности и защищенности.
+                Наши просторные помещения созданы таким образом, чтобы кошки могли свободно перемещаться, играть и исследовать окружающую среду.\s
+                Наша команда состоит из опытных сотрудников и добровольцев, которые уделяют каждой кошке индивидуальное внимание и заботу. Мы предлагаем регулярные медицинские осмотры, вакцинации и стерилизацию, чтобы убедиться, что все кошки живут в полном здоровье и благополучии.
+                Наш приют для кошек также является активным членом местного сообщества. Мы проводим информационные мероприятия, образовательные программы и совместные акции, чтобы привлекать внимание к проблеме бездомности кошек и найти решения.
+                Мы находимся по адресу: г.Москва, ул. Ленина, стр.17.
+                """),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
 }
 
 

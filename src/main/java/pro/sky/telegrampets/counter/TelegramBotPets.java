@@ -195,7 +195,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      *
      * @param photoIdByReport ID фото из отчета
      */
-    private void sendImageFromFileId(String photoIdByReport, String chatId) {
+    void sendImageFromFileId(String photoIdByReport, String chatId) {
         SendPhoto sendPhotoRequest = new SendPhoto();
         sendPhotoRequest.setChatId(chatId);
         sendPhotoRequest.setPhoto(new InputFile(photoIdByReport));
@@ -329,14 +329,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
     }
 
-
-    private void handleInvalidCommand(long chatId) {
-        SendMessage messageText = new SendMessage();
-        messageText.setChatId(chatId);
-        messageText.setText("не правильная команда");
-        executeSendMessage(messageText);
-    }
-
     public void executeSendMessage(SendMessage sendMessage) {
         try {
             execute(sendMessage);
@@ -356,17 +348,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         editMessageText.setReplyMarkup(keyboardMarkup);
         try {
             execute(editMessageText);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void changeMessage(long chatIdInButton, InlineKeyboardMarkup keyboardMarkup) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatIdInButton));
-        sendMessage.setReplyMarkup(keyboardMarkup);
-        try {
-            execute(sendMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
@@ -457,25 +438,25 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         return null;
     }
 
-    private void aboutCatShelterSelection(int messageId, long chatId) {
+    protected void aboutCatShelterSelection(int messageId, long chatId) {
         String messageText = """
                 Мы стремимся обеспечить каждую кошку в нашем приюте ласковым убежищем, где они могут чувствовать себя в безопасности и защищенности.
                 Наши просторные помещения созданы таким образом, чтобы кошки могли свободно перемещаться, играть и исследовать окружающую среду.\s
                 Наша команда состоит из опытных сотрудников и добровольцев, которые уделяют каждой кошке индивидуальное внимание и заботу. Мы предлагаем регулярные медицинские осмотры, вакцинации и стерилизацию, чтобы убедиться, что все кошки живут в полном здоровье и благополучии.
                 Наш приют для кошек также является активным членом местного сообщества. Мы проводим информационные мероприятия, образовательные программы и совместные акции, чтобы привлекать внимание к проблеме бездомности кошек и найти решения.
                 Мы находимся по адресу: г.Москва, ул. Ленина, стр.17.
-
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
         toStartButton.setCallbackData("В начало");
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void aboutDogShelterSelection(int messageId, long chatId) {
+    protected void aboutDogShelterSelection(int messageId, long chatId) {
         String messageText = """
                 Наш приют для собак - это удивительное место, где каждый пушистый друг может найти свой дом и получить заботу, любовь и безопасность, которые он заслуживает.
                 Открыв свои двери в 2023 году, наш приют уже успел стать оазисом для бездомных собак и их временным приютом.
-                У нас работает дружелюбный и преданный персонал, состоящий из опытных ветеринаров, тренеров и волонтеров, которые уделяют особое внимание заботе о наших собаках. Мы предлагаем им полноценное питание, погружение в игры и развлечения, а также регулярные медицинские осмотры и ветеринарную помощь.
+                У нас работает дружелюбный и преданный персонал, состоящий из опытных ветеринаров, тренеров и волонтеров, 
+                которые уделяют особое внимание заботе о наших собаках. Мы предлагаем им полноценное питание, погружение в игры и развлечения, а также регулярные медицинские осмотры и ветеринарную помощь.
                 Мы находимся по адресу: г.Москва, ул. Пушкина, стр.10 (вход со стороны магазина "Атлантида").
                 """;
         InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
