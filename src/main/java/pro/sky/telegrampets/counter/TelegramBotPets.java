@@ -483,7 +483,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void catShelterWorkingHoursSelection(int messageId, long chatId) {
+    protected void catShelterWorkingHoursSelection(int messageId, long chatId) {
         String messageText = """
                 Мы работаем с 7:00 и до 23:00 ежедневно.
                 В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта
@@ -494,7 +494,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
 
-    private void dogShelterWorkingHoursSelection(int messageId, long chatId) {
+    protected void dogShelterWorkingHoursSelection(int messageId, long chatId) {
         String messageText = """
                 Мы работаем с 8:30 и до 22:00 ежедневно.
                 В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта

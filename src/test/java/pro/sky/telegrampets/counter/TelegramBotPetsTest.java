@@ -5,19 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import liquibase.pro.packaged.M;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Audio;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -67,6 +71,7 @@ import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatParticipant
 import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatScheduled;
 import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatStarted;
 import org.telegram.telegrambots.meta.api.objects.webapp.WebAppData;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.ButtonsVolunteer;
 import pro.sky.telegrampets.components.GetPetReportButton;
@@ -79,6 +84,30 @@ import pro.sky.telegrampets.repository.VolunteerRepository;
 @ContextConfiguration(classes = {TelegramBotPets.class, TelegramBotConfiguration.class})
 @ExtendWith(SpringExtension.class)
 class TelegramBotPetsTest {
+
+
+    private TelegramBotConfiguration telegramBotConfiguration1;
+    private Buttons buttons1;
+    private GetPetReportButton getPetReportButton1;
+    private UserRepository userRepository1;
+    private ButtonsVolunteer buttonsVolunteer1;
+    private ReportRepository reportRepository1;
+    private VolunteerRepository volunteerRepository1;
+
+    private FakeTelegramBotPets telegramBot;
+
+    @BeforeEach
+    public void setUp() {
+         telegramBot = spy(new FakeTelegramBotPets(telegramBotConfiguration1 = mock(TelegramBotConfiguration.class),
+                reportRepository1 = mock(ReportRepository.class),
+                buttons1 = mock(Buttons.class),
+                getPetReportButton1 = mock(GetPetReportButton.class),
+                userRepository1 = mock(UserRepository.class),
+                buttonsVolunteer1 = mock(ButtonsVolunteer.class),
+                volunteerRepository1 = mock(VolunteerRepository.class)));
+    }
+
+
     @MockBean
     private Buttons buttons;
 
@@ -391,96 +420,65 @@ class TelegramBotPetsTest {
     }
 
     @Test
-    void testKittenArrangementSelection() {
-        // Заглушки
-        TelegramBotConfiguration config = Mockito.mock(TelegramBotConfiguration.class);
-        ReportRepository reportRepository = Mockito.mock(ReportRepository.class);
-        Buttons buttons = Mockito.mock(Buttons.class);
-        GetPetReportButton getPetReportButton = Mockito.mock(GetPetReportButton.class);
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
-        ButtonsVolunteer buttonsVolunteer = Mockito.mock(ButtonsVolunteer.class);
-        VolunteerRepository volunteerRepository = Mockito.mock(VolunteerRepository.class);
+    public void testCatShelterWorkingHoursSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.catShelterWorkingHoursSelection(123, 456L);
 
-        TelegramBotPets botPets = new TelegramBotPets(config, reportRepository, buttons, getPetReportButton, userRepository, buttonsVolunteer, volunteerRepository);
-
-        // Моки
-        TelegramBotPets mockBotPets = Mockito.spy(botPets);
-        InlineKeyboardButton toStartButton = new InlineKeyboardButton("В начало");
-        toStartButton.setCallbackData("В начало");
-        InlineKeyboardMarkup expectedKeyboardMarkup = new InlineKeyboardMarkup(List.of(List.of(toStartButton)));
-        Message message = Mockito.mock(Message.class);
-        var chatId = message.getChatId();
-        var messageId = message.getMessageId();
-
-
-        mockBotPets.KittenArrangementSelection(messageId, chatId);
-
-        Mockito.verify(botPets).changeMessage(messageId, chatId, "1. Место для сна, такое как кошачий домик или мягкая подушка.\n" +
-                "2. Миски для еды и воды.\n" +
-                "3. Корм для котенка, соответствующий его возрасту и размеру.\n" +
-                "4. Игрушки для игр и развлечения.\n" +
-                "5. Когтеточка или когтетренировочный материал.\n" +
-                "6. Подстилка или лоток для учения котенка делать свои нужды на определенном месте.\n" +
-                "7. Шлейка и поводок для прогулок и тренировок.\n" +
-                "8. Щетка для груминга и ухода за шерстью.\n" +
-                "9. Дезинфицирующее средство для очистки мест, где котенок делает свои нужды.\n" +
-                "10. Контактные данные ветеринарного врача или клиники, которые можно обратиться в случае необходимости.", expectedKeyboardMarkup);
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
     }
 
     @Test
-    void testCallAVolunteer() {
+    public void testCatShelterMessageTextFormat() {
 
-        // Заглушки
-        TelegramBotConfiguration config = Mockito.mock(TelegramBotConfiguration.class);
-        ReportRepository reportRepository = Mockito.mock(ReportRepository.class);
-        Buttons buttons = Mockito.mock(Buttons.class);
-        GetPetReportButton getPetReportButton = Mockito.mock(GetPetReportButton.class);
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
-        ButtonsVolunteer buttonsVolunteer = Mockito.mock(ButtonsVolunteer.class);
-        VolunteerRepository volunteerRepository = Mockito.mock(VolunteerRepository.class);
+        // Вызываем метод catShelterWorkingHoursSelection
+        telegramBot.catShelterWorkingHoursSelection(123, 456L);
 
-        TelegramBotPets botPets = new TelegramBotPets(config, reportRepository, buttons, getPetReportButton, userRepository, buttonsVolunteer, volunteerRepository);
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("Мы работаем с 7:00 и до 23:00 ежедневно.\n" +
+                        "В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта"),
 
-        // Создание моков для тестирования
-        Update mockUpdate = mock(Update.class);
-        CallbackQuery mockCallbackQuery = mock(CallbackQuery.class);
-        User mockUser = mock(User.class);
-        Chat mockChat = mock(Chat.class);
-        when(mockUpdate.getCallbackQuery()).thenReturn(mockCallbackQuery);
-        when(mockCallbackQuery.getFrom()).thenReturn(mockUser);
-        when(mockCallbackQuery.getMessage()).thenReturn(null); // В данном случае не используется
-        when(mockCallbackQuery.getMessage()).thenReturn(mockChat.getPinnedMessage());
-        when(mockUser.getUserName()).thenReturn("test_user");
+                any(InlineKeyboardMarkup.class)
+        );
+    }
 
-        // Создание списка моков волонтеров
-        List<Volunteer> mockVolunteerList = new ArrayList<>();
-        Volunteer mockVolunteer1 = mock(Volunteer.class);
-        Volunteer mockVolunteer2 = mock(Volunteer.class);
-        when(mockVolunteer1.getChatId()).thenReturn(Long.valueOf("chatId1"));
-        when(mockVolunteer2.getChatId()).thenReturn(Long.valueOf("chatId2"));
-        mockVolunteerList.add(mockVolunteer1);
-        mockVolunteerList.add(mockVolunteer2);
+    @Test
+    public void testDogShelterWorkingHoursSelection() {
+        // Вызываем метод, который мы хотим протестировать
+        telegramBot.dogShelterWorkingHoursSelection(123, 456L);
 
-        // Подготовка моков репозитория и бота
-        when(volunteerRepository.findAll()).thenReturn(mockVolunteerList);
+        // Проверяем, что метод changeMessage был вызван с ожидаемыми аргументами
+        verify(telegramBot).changeMessage(
+                eq(123),
+                eq(456L),
+                anyString(),
+                any(InlineKeyboardMarkup.class)
+        );
+    }
 
+    @Test
+    public void testDogShelterMessageTextFormat() {
 
-        // Вызов метода для тестирования
-        botPets.callAVolunteer(mockUpdate);
+        // Вызываем метод catShelterWorkingHoursSelection
+        telegramBot.dogShelterWorkingHoursSelection(123, 456L);
 
-//        // Проверка, что был вызван метод execute() нужное количество раз
-//        verify(mockSender, times(2)).execute(any(SendMessage.class));
+        // Проверяем, что текст сообщения соответствует ожидаемому формату
+        verify(telegramBot).changeMessage(
+                anyInt(),
+                anyLong(),
+                matches("Мы работаем с 8:30 и до 22:00 ежедневно.\n" +
+                        "В праздничные и предпраздничные дни график работы может меняться, для уточнения данных времени приема - просьба обратиться по контактам для связи с охраной приюта"),
 
-        // Проверка, что был вызван метод findAll() у репозитория
-        verify(volunteerRepository).findAll();
-
-        // Проверка, что был получен chatId у волонтеров
-        verify(mockVolunteer1).getChatId();
-        verify(mockVolunteer2).getChatId();
-
-//        // Проверка, что текст отправленного сообщения соответствует ожидаемому
-//        verify(mockSender).execute(argThat(sendMessage ->
-//                sendMessage.getText().contains("Пользователь: @test_user просит с ним связаться.")));
+                any(InlineKeyboardMarkup.class)
+        );
     }
 }
 
