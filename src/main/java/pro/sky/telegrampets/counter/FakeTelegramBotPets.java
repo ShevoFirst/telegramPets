@@ -11,15 +11,31 @@ import pro.sky.telegrampets.repository.UserRepository;
 import pro.sky.telegrampets.repository.VolunteerRepository;
 
 import java.io.Serializable;
+import java.util.function.Function;
 
 public class FakeTelegramBotPets extends TelegramBotPets {
+    private Function<BotApiMethod<?>, Object> executeFunction;
+    private Object fakeSendPhotoResult;
+
     public FakeTelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer, VolunteerRepository volunteerRepository) {
         super(telegramBotConfiguration, reportRepository, buttons, getPetReportButton, userRepository, buttonsVolunteer, volunteerRepository);
     }
+    // Добавьте метод для установки функции-заглушки
+    public void setExecuteFunction(Function<BotApiMethod<?>, Object> executeFunction) {
+        this.executeFunction = executeFunction;
+    }
 
+    // Добавьте метод для установки фейкового результата execute
+    public void setFakeSendPhotoResult(Object fakeSendPhotoResult) {
+        this.fakeSendPhotoResult = fakeSendPhotoResult;
+    }
     @Override
     public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) throws TelegramApiException {
-        // Ничего не делаем, чтобы избежать ошибки
-        return null;
+        // Если установлена функция-заглушка, вызовите её, иначе верните null
+        if (executeFunction != null) {
+            return (T) executeFunction.apply(method);
+        } else {
+            return null;
+        }
     }
 }

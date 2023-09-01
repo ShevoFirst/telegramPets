@@ -211,7 +211,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
      *
      * @return возвращает ID фото из отчета
      */
-    private String reviewListOfReports(long chatId) {
+    protected String reviewListOfReports(long chatId) {
         sendMessageReport = buttonsVolunteer.parseReportNumber(buttonsVolunteer.reviewListOfReports(chatId).getText()); //Сохроняем ID отчета
         Report report = reportRepository.findReportById((long) sendMessageReport); //Получаем отчет по ID
         String reportPhotoNameId = report.getPhotoNameId(); //Получаем Id фото из репорта
@@ -225,13 +225,13 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
 
     //Если отчет сдан
-    private void reportSubmitted(Update update) {
+    protected void reportSubmitted(Update update) {
         changeMessage(update.getCallbackQuery().getMessage().getChatId(), "Отчет сдан");
         buttonsVolunteer.reportSubmitted((long) sendMessageReport);
     }
 
     //Если отчет не сдан
-    private void reportNotSubmitted(Update update) {
+    protected void reportNotSubmitted(Update update) {
         changeMessage(update.getCallbackQuery().getMessage().getChatId(), "Отчет не сдан");
         var reportById = reportRepository.findReportById((long) sendMessageReport);
         changeMessage(reportById.getUser().getChatId(), "Твой отчет c текстом " + reportById.getGeneralWellBeing()
@@ -244,7 +244,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         return update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start");
     }
 
-    private void sendButtonVolonter(long chatId) {
+    /**
+     * Вызов волонтерской панели
+     */
+    protected void sendButtonVolonter(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setReplyMarkup(buttonsVolunteer.buttonVolunteer());
@@ -329,6 +332,10 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
     }
 
+    /**
+     * Отправка сообщения
+     * @param sendMessage
+     */
     public void executeSendMessage(SendMessage sendMessage) {
         try {
             execute(sendMessage);
@@ -679,4 +686,6 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         toStartButton.setCallbackData("В начало");
         changeMessage(messageId, chatId, messageText, new InlineKeyboardMarkup(List.of(List.of(toStartButton))));
     }
+
+
 }
