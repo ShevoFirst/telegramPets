@@ -1,6 +1,7 @@
 package pro.sky.telegrampets.counter;
 
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.components.Buttons;
 import pro.sky.telegrampets.components.ButtonsVolunteer;
@@ -37,5 +38,11 @@ public class FakeTelegramBotPets extends TelegramBotPets {
         } else {
             return null;
         }
+    }
+
+    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Message capture) {
+
+            return null;
+
     }
 }

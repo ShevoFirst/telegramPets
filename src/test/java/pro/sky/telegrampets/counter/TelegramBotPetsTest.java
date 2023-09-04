@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import liquibase.pro.packaged.M;
@@ -1019,7 +1020,6 @@ class TelegramBotPetsTest {
         assertEquals(value.getChatId(), "123");
     }
 
-
     @Captor
     private ArgumentCaptor<String> chatId;
     @Captor
@@ -1090,7 +1090,6 @@ class TelegramBotPetsTest {
         assertEquals(reviewListOfReportsValue, 123L);
     }
 
-
     @Captor
     private ArgumentCaptor<Long> sendButtonVolonterCaptor;
 
@@ -1111,7 +1110,6 @@ class TelegramBotPetsTest {
         assertEquals(volonterCaptorValue, 123L);
     }
 
-
     @Captor
     private ArgumentCaptor<SendMessage> sendMessageCaptor;
 
@@ -1125,6 +1123,43 @@ class TelegramBotPetsTest {
 
         assertEquals("Волонтерская панель", capturedSendMessage.getText());
     }
+
+    @Test
+    @DisplayName("Тест метода startSelection")
+    void testStartSelection() throws TelegramApiException {
+        long chatId = 123L;
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+        User user = mock(User.class);
+
+        when(update.getMessage()).thenReturn(message);
+        when(message.getFrom()).thenReturn(user);
+        when(user.getFirstName()).thenReturn("John"); //
+
+        telegramBot.startSelection(chatId, update);
+
+        ArgumentCaptor<SendMessage> sendMessageCaptor = ArgumentCaptor.forClass(SendMessage.class);
+        verify(telegramBot).execute(sendMessageCaptor.capture());
+
+        SendMessage capturedSendMessage = sendMessageCaptor.getValue();
+        assertEquals(String.valueOf(chatId), capturedSendMessage.getChatId());
+        assertEquals("Привет! John Выберите приют который Вас интересует:", capturedSendMessage.getText());
+
+        assertNotNull(capturedSendMessage.getReplyMarkup());
+    }
+
+    @Test
+    @DisplayName("Тест метода buttonToStart")
+    void testButtonToStart() {
+        long chatId = 123L;
+        int messageId = 1;
+
+        telegramBot.buttonToStart(messageId, chatId);
+
+        verify(telegramBot, times(1)).changeMessage(eq(messageId), eq(chatId), anyString(), any(InlineKeyboardMarkup.class));
+
+        assertFalse(telegramBot.isWaitNumber);
+        assertFalse(telegramBot.photoCheckButton);
+        assertFalse(telegramBot.reportCheckButton);
+    }
 }
-
-

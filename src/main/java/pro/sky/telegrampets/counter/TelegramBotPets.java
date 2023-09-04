@@ -44,17 +44,17 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     private final Buttons buttons;
     private final GetPetReportButton getPetReportButton;
     protected boolean isACatShelter;
-    private boolean isWaitNumber = false;
-    private final UserRepository userRepository;
-    private final ButtonsVolunteer buttonsVolunteer;
-    private String namePhotoId;
-    private ReportRepository reportRepository;
+    protected boolean isWaitNumber = false;
+    protected final UserRepository userRepository;
+    protected final ButtonsVolunteer buttonsVolunteer;
+    protected String namePhotoId;
+    protected ReportRepository reportRepository;
     int sendMessageReport; // сохраняем текстовую часть репорта для парсинга ID
     VolunteerRepository volunteerRepository;
 
 
-    private boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
-    private boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
+    protected boolean photoCheckButton = false; // флаг на проверку нажатия кнопки
+    protected boolean reportCheckButton = false; // флаг на проверку нажатия кнопки
 
     public TelegramBotPets(TelegramBotConfiguration telegramBotConfiguration, ReportRepository reportRepository, Buttons buttons, GetPetReportButton getPetReportButton, UserRepository userRepository, ButtonsVolunteer buttonsVolunteer, VolunteerRepository volunteerRepository) {
         this.telegramBotConfiguration = telegramBotConfiguration;
@@ -279,7 +279,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //метод кнопки "Как взять животное из приюта?"
-    private void takeAnimalSelection(int messageId, long chatId) {
+    protected void takeAnimalSelection(int messageId, long chatId) {
         String messageText = "Выберите, что вас интересует";
         InlineKeyboardMarkup catsButtons = buttons.takeAnimalButton(isACatShelter);
         changeMessage(messageId, chatId, messageText, catsButtons);
@@ -287,13 +287,13 @@ public class TelegramBotPets extends TelegramLongPollingBot {
 
 
     //метод кнопки "Информация о приюте"
-    private void shelterInformationSelection(int messageId, long chatId) {
+    protected void shelterInformationSelection(int messageId, long chatId) {
         String messageText = "Здравствуйте, дорогой пользователь.";
         InlineKeyboardMarkup shelterButtons = buttons.shelterInformationButton(isACatShelter);
         changeMessage(messageId, chatId, messageText, shelterButtons);
     }
 
-    private void startSelection(long chatId, Update update) {
+    protected void startSelection(long chatId, Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setReplyMarkup(new Buttons().selectionAnimalButtons());
@@ -305,7 +305,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         }
     }
 
-    private void buttonToStart(int messageId, long chatId) {
+    protected void buttonToStart(int messageId, long chatId) {
         String messageText = " Выберите приют который Вас интересует:";
         changeMessage(messageId, chatId, messageText, new Buttons().selectionAnimalButtons());
         isWaitNumber = false;
@@ -313,7 +313,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         reportCheckButton = false;
     }
 
-    private void catSelection(int messageId, long chatId) {
+    protected void catSelection(int messageId, long chatId) {
         isACatShelter = true;
         String messageText = "Вы выбрали приют для кошек";
         InlineKeyboardMarkup catsButtons = buttons.secondLayerButtons();
@@ -327,7 +327,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //метод кнопки "Прислать отчет о питомце"
-    private void petReportSelection(int messageId, long chatId) {
+    protected void petReportSelection(int messageId, long chatId) {
         InlineKeyboardMarkup reportButtons = getPetReportButton.sendMessageReportFromPet();
         changeMessage(messageId, chatId, "Выберите одну из кнопок", reportButtons);
     }
