@@ -273,7 +273,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
     }
 
     //вызов кннопки о просьбе "Прислать фото питомца"
-    private void takeDailyReportFormPhoto(long chatId) {
+    protected void takeDailyReportFormPhoto(long chatId) {
         SendMessage sendMessage = getPetReportButton.sendMessageDailyReportPhoto(chatId);
         executeSendMessage(sendMessage);
     }
@@ -320,7 +320,7 @@ public class TelegramBotPets extends TelegramLongPollingBot {
         changeMessage(messageId, chatId, messageText, catsButtons);
     }
 
-    private void dogSelection(int messageId, long chatId) {
+    protected void dogSelection(int messageId, long chatId) {
         isACatShelter = false;
         InlineKeyboardMarkup dogButtons = buttons.secondLayerButtons();
         changeMessage(messageId, chatId, "Вы выбрали собачий приют", dogButtons);

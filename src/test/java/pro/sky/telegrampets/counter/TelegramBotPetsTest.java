@@ -1,5 +1,6 @@
 package pro.sky.telegrampets.counter;
 
+import static org.assertj.core.api.InstanceOfAssertFactories.OPTIONAL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicClosed;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicCreated;
@@ -73,7 +75,7 @@ class TelegramBotPetsTest {
     private ReportRepository reportRepository1;
     private VolunteerRepository volunteerRepository1;
 
-    private FakeTelegramBotPets telegramBot;
+    private TelegramBotPets telegramBot;
 
     @BeforeEach
     public void setUp() {
@@ -1162,4 +1164,112 @@ class TelegramBotPetsTest {
         assertFalse(telegramBot.photoCheckButton);
         assertFalse(telegramBot.reportCheckButton);
     }
+
+
+    @Test
+    @DisplayName("Метод кнопки - Прислать отчет о питомце")
+    void testPetReportSelection() {
+        ArgumentCaptor<Long> chatIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> messageTextCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InlineKeyboardMarkup> keyboardMarkupCaptor = ArgumentCaptor.forClass(InlineKeyboardMarkup.class);
+        ArgumentCaptor<Integer> messageIdCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        telegramBot.petReportSelection(123, 123L);
+
+        verify(telegramBot).changeMessage(
+                messageIdCaptor.capture(),
+                chatIdCaptor.capture(),
+                messageTextCaptor.capture(),
+                keyboardMarkupCaptor.capture()
+        );
+
+        assertEquals(123, messageIdCaptor.getValue());
+        assertEquals(123L, chatIdCaptor.getValue());
+        assertEquals("Выберите одну из кнопок", messageTextCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("Тест кнопки - Выбран приют для кошки")
+    void testCatSelection() {
+        ArgumentCaptor<Long> chatIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> messageTextCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InlineKeyboardMarkup> keyboardMarkupCaptor = ArgumentCaptor.forClass(InlineKeyboardMarkup.class);
+        ArgumentCaptor<Integer> messageIdCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        telegramBot.catSelection(123, 123L);
+        verify(telegramBot).changeMessage(
+                messageIdCaptor.capture(),
+                chatIdCaptor.capture(),
+                messageTextCaptor.capture(),
+                keyboardMarkupCaptor.capture()
+        );
+
+        assertEquals(123, messageIdCaptor.getValue());
+        assertEquals(123L, chatIdCaptor.getValue());
+        assertEquals("Вы выбрали приют для кошек", messageTextCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("Тест кнопки - Выбран приют для собаки")
+    void testDogSelection() {
+        ArgumentCaptor<Long> chatIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> messageTextCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InlineKeyboardMarkup> keyboardMarkupCaptor = ArgumentCaptor.forClass(InlineKeyboardMarkup.class);
+        ArgumentCaptor<Integer> messageIdCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        telegramBot.dogSelection(123, 123L);
+        verify(telegramBot).changeMessage(
+                messageIdCaptor.capture(),
+                chatIdCaptor.capture(),
+                messageTextCaptor.capture(),
+                keyboardMarkupCaptor.capture()
+        );
+
+        assertEquals(123, messageIdCaptor.getValue());
+        assertEquals(123L, chatIdCaptor.getValue());
+        assertEquals("Вы выбрали собачий приют", messageTextCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("Тест кнопки - Информация о приюте")
+    void testShelterInformationSelection() {
+        ArgumentCaptor<Long> chatIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> messageTextCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InlineKeyboardMarkup> keyboardMarkupCaptor = ArgumentCaptor.forClass(InlineKeyboardMarkup.class);
+        ArgumentCaptor<Integer> messageIdCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        telegramBot.shelterInformationSelection(123, 123L);
+        verify(telegramBot).changeMessage(
+                messageIdCaptor.capture(),
+                chatIdCaptor.capture(),
+                messageTextCaptor.capture(),
+                keyboardMarkupCaptor.capture()
+        );
+
+        assertEquals(123, messageIdCaptor.getValue());
+        assertEquals(123L, chatIdCaptor.getValue());
+        assertEquals("Здравствуйте, дорогой пользователь.", messageTextCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("Тест кнопки - Как взять животное из приюта?")
+    void testTakeAnimalSelection() {
+        ArgumentCaptor<Long> chatIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> messageTextCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InlineKeyboardMarkup> keyboardMarkupCaptor = ArgumentCaptor.forClass(InlineKeyboardMarkup.class);
+        ArgumentCaptor<Integer> messageIdCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        telegramBot.takeAnimalSelection(123, 123L);
+        verify(telegramBot).changeMessage(
+                messageIdCaptor.capture(),
+                chatIdCaptor.capture(),
+                messageTextCaptor.capture(),
+                keyboardMarkupCaptor.capture()
+        );
+
+        assertEquals(123, messageIdCaptor.getValue());
+        assertEquals(123L, chatIdCaptor.getValue());
+        assertEquals("Выберите, что вас интересует", messageTextCaptor.getValue());
+    }
 }
+
