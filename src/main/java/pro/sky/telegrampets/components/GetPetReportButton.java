@@ -3,9 +3,12 @@ package pro.sky.telegrampets.components;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.impl.ReportServiceImpl;
 import pro.sky.telegrampets.impl.UserServiceImpl;
 import pro.sky.telegrampets.model.Report;
@@ -132,8 +135,4 @@ public class GetPetReportButton {
         report.setUser(userRepository.findUserByChatId(chatId));
         reportServiceImpl.reportAdd(report);
     }
-
-
 }
-
-

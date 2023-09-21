@@ -1,11 +1,16 @@
 package pro.sky.telegrampets.components;
+
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pro.sky.telegrampets.impl.ReportServiceImpl;
 import pro.sky.telegrampets.repository.ReportRepository;
 import pro.sky.telegrampets.model.Report;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -56,8 +61,10 @@ public class ButtonsVolunteer {
                 SendMessage reportMessage = new SendMessage();
                 reportMessage.setChatId(chatId);
 
+
                 String reportInfo = "Отчет #" + report.getId() + "\n" +
-                        "Текстовая часть отчета: " + report.getGeneralWellBeing();
+                        "Текстовая часть отчета: " + report.getGeneralWellBeing() +
+                        "\n" + "Фото отчета - ";
                 reportMessage.setText(reportInfo);
 
                 InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
@@ -66,7 +73,7 @@ public class ButtonsVolunteer {
                 InlineKeyboardButton button1 = new InlineKeyboardButton("Отчет сдан");
                 InlineKeyboardButton button2 = new InlineKeyboardButton("Отчет не сдан");
                 button1.setCallbackData("ОТЧЕТ СДАН");
-                button2.setCallbackData("Флаг кнопки 2 для отчета");
+                button2.setCallbackData("ОТЧЕТ НЕ СДАН");
                 rowsInLine.add(List.of(button1, button2));
 
                 keyboardMarkup.setKeyboard(rowsInLine);
@@ -85,6 +92,14 @@ public class ButtonsVolunteer {
         Report report = reportRepository.findReportById(idReport);
         report.setCheckReport(true);
         reportServiceImpl.updateReport(report);
+    }
+
+    /**
+     * Обновляем БД, удаляем отчет т.к. он не был сдан
+     */
+    public Report reportNotSubmitted(Long idReport) {
+        reportRepository.deleteReportById(idReport);
+        return reportRepository.findReportById(idReport);
     }
 
 
